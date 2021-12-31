@@ -4,21 +4,38 @@ namespace Ekok\Validation;
 
 abstract class Rule
 {
-    protected $args = array();
+    const SUFFIX_NAME = 'Rule';
+
     protected $message = 'This value is not valid';
 
-    abstract public function validate(string $field, Result $result);
+    /** @var string */
+    protected $name;
 
-    public function getArgs(): array
+    /** @var Context */
+    protected $context;
+
+    /** @var Result */
+    protected $result;
+
+    public function validate(Context $context, Result $result)
     {
-        return $this->args;
+        $this->context = $context;
+        $this->result = $result;
+
+        return $this->doValidate();
     }
 
-    public function setArgs(array $args): static
+    public function name(): string
     {
-        $this->args = $args;
+        if (!$this->name) {
+            $this->name = Helper::snakeCase(ltrim(strrchr('\\' . static::class, '\\'), '\\'));
 
-        return $this;
+            if (str_ends_with($this->name, self::SUFFIX_NAME)) {
+                $this->name = substr($this->name, 0, -strlen(self::SUFFIX_NAME));
+            }
+        }
+
+        return $this->name;
     }
 
     public function getMessage(): string
@@ -31,5 +48,10 @@ abstract class Rule
         $this->message = $message;
 
         return $this;
+    }
+
+    protected function doValidate()
+    {
+        return false;
     }
 }

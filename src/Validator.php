@@ -4,27 +4,20 @@ namespace Ekok\Validation;
 
 class Validator
 {
+    const RULE_NAMESPACE = 'Ekok\\Validation\\Rules\\';
+
+    /** @var DynamicRule[] */
     protected $rules = array();
     protected $messages = array();
+    protected $namespaces = array(self::RULE_NAMESPACE);
     protected $throwIfError = true;
-
-    public function __construct(array $rules = null, array $messages = null)
-    {
-        if ($rules) {
-            $this->setRules($rules);
-        }
-
-        if ($rules) {
-            $this->setMessages($messages);
-        }
-    }
 
     public function getRules(): array
     {
         return $this->rules;
     }
 
-    public function addRule(string $name, string|Rule $rule): static
+    public function addRule(string $name, DynamicRule $rule): static
     {
         $this->rules[$name] = $rule;
 
@@ -34,6 +27,27 @@ class Validator
     public function setRules(array $rules): static
     {
         array_walk($rules, fn($rule, $name) => $this->addRule($name, $rule));
+
+        return $this;
+    }
+
+    public function getNamespaces(): array
+    {
+        return $this->namespaces;
+    }
+
+    public function addNamespace(string $namespace): static
+    {
+        $this->namespaces[] = $namespace;
+
+        return $this;
+    }
+
+    public function setNamespaces(array $namespaces): static
+    {
+        $this->namespaces = array(self::RULE_NAMESPACE);
+
+        array_walk($namespaces, fn($namespace) => $this->addNamespace($namespace));
 
         return $this;
     }
@@ -84,53 +98,69 @@ class Validator
 
     protected function doValidate(string $field, string|array $rules, Result $result, array $messages = null): void
     {
-        /** @var Rule[] */
-        $validators = $this->extract($rules);
+        $run = static function(Rule $validator, string $field, string|int $pos = null) use ($result, $messages) {
+            $ctx = new Context($field, $result[$field], $pos);
+            $val = $validator->validate($ctx, $result);
 
-        foreach ($validators as $validator) {
-            $value = $validator->validate($field, $result);
+            if (false === $val) {
+                $result->addError($field, $messages[$validator->name()] ?? $validator->getMessage());
+            } elseif (!$ctx->isValueIgnored()) {
+                $result[$field] = true === $val ? $result[$field] : $val;
+            }
 
-            if (true === $value) {
-                $result[$field] = $result[$field];
-            } elseif (false === $value) {
-                $result->addError($field, $messages[$validator->name] ?? $validator->getMessage());
-            } else {
-                $result[$field] = $value;
+            return $ctx->isPropagationStopped();
+        };
+        $runBatch = static fn(Rule $validator, int $pos) => array_reduce(
+            is_array($data = $result[substr($field, 0, $pos - 1)]) ? array_keys($data) : array(),
+            fn($stop, $key) => $stop || $run($validator, Helper::replaceWild($field, $pos, $key), $key),
+        );
+
+        foreach ($this->extract($rules) as $validator) {
+            $stop = Helper::isWild($field, $pos) ? $runBatch($validator, $pos) : $run($validator, $field);
+
+            if ($stop) {
+                break;
             }
         }
     }
 
     protected function extract(string|array $rules): array
     {
-        $validators = array();
-
-        foreach (is_string($rules) ? $this->parse($rules) : $rules as $rule => $args) {
-            $validators[] = $args instanceof Rule ? $args : $this->buildRule($rule, $args);
-        }
-
-        return $validators;
+        return Helper::each(
+            is_string($rules) ? $this->parse($rules) : $rules,
+            fn($args, $rule) => $args instanceof Rule ? $args : $this->findRule($rule, $args),
+        );
     }
 
     protected function parse(string $rules): array
     {
-        return array_reduce(explode('|', $rules), function (array $prev, string $rule) {
-            list($name, $args) = explode(':', $rule . ':');
+        return Helper::each(
+            explode('|', $rules),
+            static function (string $rule, ...$args) {
+                list($name, $line) = explode(':', $rule . ':');
 
-            return $prev + array($name => array_map('Ekok\\Validation\\Helper::cast', explode(',', $args)));
-        }, array());
+                $args[1]['seed']->key = $name;
+
+                return array_map('Ekok\\Validation\\Helper::cast', explode(',', $line));
+            },
+        );
     }
 
-    protected function buildRule(string|int $rule, array $args): Rule
+    protected function findRule(string|int $rule, array $args): Rule
     {
-        $found = $this->rules[$rule] ?? (class_exists($class = 'Ekok\\Validation\\Rules\\' . $rule) ? $class : null);
-
-        if (!$found) {
-            throw new \LogicException(sprintf('Invalid validation rules: %s', $rule));
+        if (isset($this->rules[$rule])) {
+            return (clone $this->rules[$rule])->setArguments($args);
         }
 
-        /** @var Rule */
-        $validator = is_string($found) ? new $found() : clone $found;
+        $class = array_reduce(
+            $this->namespaces,
+            fn(string|null $found, $namespace) => $found ?? (class_exists($class = $namespace . $rule) || class_exists($class = $namespace . $rule . Rule::SUFFIX_NAME) ? $class : null),
+        );
 
-        return $validator->setArgs($args);
+        if ($class) {
+            return new $class(...$args);
+        }
+
+        throw new \LogicException(sprintf('Validation rule not found: %s', $rule));
     }
 }

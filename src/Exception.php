@@ -8,10 +8,10 @@ class Exception extends GlobalException
 {
     public function __construct(
         public array $errors,
-        string $message = '',
+        string $message = null,
         int $code = 0,
         \Throwable $previous = null,
     ) {
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message ?? 'Unprocessable entity', $code, $previous);
     }
 }

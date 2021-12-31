@@ -4,7 +4,52 @@ namespace Ekok\Validation;
 
 class Helper
 {
-    public function cast(string $value)
+    public static function toBool($value): bool|null
+    {
+        return filter_var($value, FILTER_VALIDATE_BOOL|FILTER_NULL_ON_FAILURE);
+    }
+
+    public static function toDate($datetime): \DateTime|null
+    {
+        try {
+            return is_string($datetime) ? new \DateTime($datetime) : null;
+        } catch (\Throwable $error) {
+            return null;
+        }
+    }
+
+    public static function snakeCase(string $str): string
+    {
+        return preg_replace('/\p{Lu}/', '_$0', lcfirst($str));
+    }
+
+    public static function each(iterable $data, callable $fn, bool $key = true, bool $null = true): array
+    {
+        $result = array();
+        $seed = new \stdClass();
+
+        foreach ($data as $name => $value) {
+            $update = $fn($value, $name, array(
+                'seed' => $seed,
+                'old' => $data,
+                'new' => $result,
+            ));
+
+            if (null === $update && false === $null) {
+                continue;
+            }
+
+            if ($key) {
+                $result[$seed->key ?? $name] = $update;
+            } else {
+                $result[] = $update;
+            }
+        }
+
+        return $result;
+    }
+
+    public static function cast(string $value)
     {
         $val = trim($value);
 
@@ -21,6 +66,16 @@ class Helper
         }
 
 		return $val;
+    }
+
+    public static function isWild(string $key, int|bool &$pos = null): bool
+    {
+        return !!($pos = strpos($key, '*'));
+    }
+
+    public static function replaceWild(string $key, int $pos, string $replacement): string
+    {
+        return substr($key, 0, $pos) . $replacement . (substr($key, $pos + 1) ?: '');
     }
 
     public static function &ref(string $key, array &$ref, bool $add = true, bool &$exists = null)
@@ -48,18 +103,6 @@ class Helper
         foreach ($parts as $part) {
             if (null === $var || is_scalar($var)) {
                 $var = array();
-            }
-
-            if ('*' === $part) {
-                $exists = true;
-
-                if (is_array($var)) {
-                    $last = $add ? count($var) : count($var) - 1;
-                    $exists = $last > -1 && isset($var[$last]);
-                    $var = &$var[max(0, $last)];
-                }
-
-                continue;
             }
 
             if (($arr = is_array($var)) || $var instanceof \ArrayAccess) {

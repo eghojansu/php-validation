@@ -18,8 +18,8 @@ class Result implements \ArrayAccess
     public function offsetExists(mixed $offset): bool
     {
         return (
-            Helper::ref($offset, $this->data, false, $exists) || $exists ||
-            Helper::ref($offset, $this->original, false, $exists) || $exists
+            Helper::ref($offset, $this->data, false, $exists) || $exists
+            || Helper::ref($offset, $this->original, false, $exists) || $exists
         );
     }
 
@@ -31,7 +31,7 @@ class Result implements \ArrayAccess
             return $var;
         }
 
-        return Helper::ref($offset, $this->original);
+        return $this->original($offset);
     }
 
     public function offsetSet(mixed $offset, mixed $value): void
@@ -61,6 +61,28 @@ class Result implements \ArrayAccess
         }
     }
 
+    public function getData(): array
+    {
+        return $this->data;
+    }
+
+    public function getOriginal(): array
+    {
+        return $this->original;
+    }
+
+    public function other(string $field, string|int|null $key)
+    {
+        $fetch = Helper::isWild($field, $pos) && $key ? Helper::replaceWild($field, $pos, $key) : $field;
+
+        return $this[$fetch];
+    }
+
+    public function original(string $field)
+    {
+        return Helper::ref($field, $this->original);
+    }
+
     public function success(): bool
     {
         return !$this->errors;
@@ -69,6 +91,11 @@ class Result implements \ArrayAccess
     public function failed(): bool
     {
         return !$this->success();
+    }
+
+    public function error(string $field, bool $flatten = true, string $glue = ','): string|array
+    {
+        return $flatten ? implode($glue, $this->errors[$field] ?? array()) : $this->errors[$field] ?? array();
     }
 
     public function getErrors(): array
