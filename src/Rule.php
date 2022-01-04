@@ -22,7 +22,7 @@ abstract class Rule
         $this->context = $context;
         $this->result = $result;
 
-        return $this->doValidate();
+        return $this->prepare()->doValidate();
     }
 
     public function name(): string
@@ -48,6 +48,11 @@ abstract class Rule
         $this->message = $message;
 
         return $this;
+    }
+
+    protected function prepare()
+    {
+        // any preparation before validation
     }
 
     protected function doValidate()

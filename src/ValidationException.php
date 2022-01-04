@@ -2,9 +2,7 @@
 
 namespace Ekok\Validation;
 
-use Exception as GlobalException;
-
-class Exception extends GlobalException
+class ValidationException extends \Exception
 {
     public function __construct(
         public array $errors,

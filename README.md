@@ -18,7 +18,7 @@ $rules = array(
     'username' => 'trim|min:5',
     'password' => 'trim|min:5',
 );
-// any validation error will throw Ekok\Validation\Exception
+// any validation error will throw Ekok\Validation\ValidationException
 $result = $validator->validate($rules, $data);
 
 // $result['username'] is ok

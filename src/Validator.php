@@ -90,7 +90,7 @@ class Validator
         array_walk($rules, fn($rule, $field) => $this->doValidate($field, $rule, $result, $messages));
 
         if ($result->failed() && $this->throwIfError) {
-            throw new Exception($result->getErrors());
+            throw new ValidationException($result->getErrors());
         }
 
         return $result;

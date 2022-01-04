@@ -11,8 +11,6 @@ class Callback extends Rule
 
     protected function doValidate()
     {
-        $call = $this->cb;
-
-        return $call($this->context, $this->result);
+        return $this->cb->call($this, $this->context, $this->result);
     }
 }
