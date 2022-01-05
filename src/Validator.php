@@ -4,6 +4,7 @@ namespace Ekok\Validation;
 
 use Ekok\Utils\Arr;
 use Ekok\Utils\Str;
+use Ekok\Utils\Val;
 use Ekok\Utils\Payload;
 
 class Validator
@@ -146,7 +147,7 @@ class Validator
                 list($name, $line) = explode(':', $rule->value . ':');
 
                 return $rule->update(
-                    array_map(Str::class . '::cast', explode(',', $line)),
+                    array_map(Val::class . '::cast', explode(',', $line)),
                     $name,
                 );
             },

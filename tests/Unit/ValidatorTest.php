@@ -22,6 +22,11 @@ class ValidatorTest extends TestCase
             'acc' => 'on',
             'homepage' => 'https://ekokurniawan.my.id/',
             'today_date' => date('Y-m-d'),
+            'id' => 'AlphaOne',
+            'id_snake' => 'alpha_one',
+            'id_reg' => 'MEM123',
+            'slug' => 'slug-the-whole-things',
+            'text' => 'Pada zaman dahulu...',
         );
         $actual = $this->validator->setThrowIfError(false)->validate($rules, $data);
 
@@ -35,6 +40,15 @@ class ValidatorTest extends TestCase
             'not accepted' => array(array('homepage' => 'accepted'), array('success' => false)),
             'active_url' => array(array('homepage' => 'active_url')),
             'not active_url' => array(array('acc' => 'active_url'), array('success' => false)),
+            'after' => array(array('today_date' => 'after:yesterday')),
+            'after equals' => array(array('today_date' => 'after:today,true')),
+            'not after' => array(array('today_date' => 'after:today'), array('success' => false)),
+            'alpha' => array(array('id' => 'alpha')),
+            'not alpha' => array(array('id_snake' => 'alpha'), array('success' => false)),
+            'alpha_dash' => array(array('slug' => 'alpha_dash')),
+            'not alpha_dash' => array(array('text' => 'alpha_dash'), array('success' => false)),
+            'alpha_num' => array(array('id_reg' => 'alpha_num')),
+            'not alpha_num' => array(array('date' => 'alpha_num'), array('success' => false)),
         );
     }
 }
