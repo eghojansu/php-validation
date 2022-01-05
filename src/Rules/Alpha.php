@@ -8,8 +8,8 @@ class Alpha extends Rule
 {
     protected $message = 'This value should be entirely alphabetic characters';
 
-    protected function doValidate()
+    protected function doValidate($value)
     {
-        return !!preg_match('/^[[:alpha:]]+$/', $this->context->value);
+        return !!preg_match('/^[[:alpha:]]+$/', $value);
     }
 }

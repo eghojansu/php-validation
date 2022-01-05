@@ -15,10 +15,10 @@ class Between extends Rule
         $this->message = 'This value should between ' . $this->min . ' and ' . $this->max;
     }
 
-    protected function doValidate()
+    protected function doValidate($value)
     {
-        $size = Helper::toSize($this->context->value, $this->context->getType());
+        $size = Helper::toSize($value, $this->context->getType());
 
-        return $size >= $min && $size <= $max;
+        return $size >= $this->min && $size <= $this->max;
     }
 }

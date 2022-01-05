@@ -18,11 +18,11 @@ class ArrayRule extends Rule
         }
     }
 
-    protected function doValidate()
+    protected function doValidate($value)
     {
-        return is_array($this->context->value) && (
+        return is_array($value) && (
             !$this->keys
-            || count(array_intersect($this->keys, array_keys($this->context->value))) === count($this->keys)
+            || count(array_intersect($this->keys, array_keys($value))) === count($this->keys)
         );
     }
 }

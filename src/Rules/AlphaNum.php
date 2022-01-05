@@ -8,8 +8,8 @@ class AlphaNum extends Rule
 {
     protected $message = 'This value should be entirely alpha-numeric characters';
 
-    protected function doValidate()
+    protected function doValidate($value)
     {
-        return !!preg_match('/^[[:alnum:]]+$/', $this->context->value);
+        return !!preg_match('/^[[:alnum:]]+$/', $value);
     }
 }

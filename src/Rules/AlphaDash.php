@@ -8,8 +8,8 @@ class AlphaDash extends Rule
 {
     protected $message = 'This value should contains only alpha-numeric characters, dashes or underscores';
 
-    protected function doValidate()
+    protected function doValidate($value)
     {
-        return !!preg_match('/^[[:alnum:]\-_]+$/', $this->context->value);
+        return !!preg_match('/^[[:alnum:]\-_]+$/', $value);
     }
 }

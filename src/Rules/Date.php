@@ -19,8 +19,8 @@ class Date extends Rule
         }
     }
 
-    protected function doValidate()
+    protected function doValidate($value)
     {
-        return null !== ($this->format ? Helper::toDateFromFormat($this->format, $this->context->value) : Helper::toDate($this->context->value));
+        return null !== ($this->format ? Helper::toDateFromFormat($this->format, $value) : Helper::toDate($value));
     }
 }

@@ -11,8 +11,8 @@ class Confirmed extends Rule
     public function __construct(private string|null $field = null)
     {}
 
-    protected function doValidate()
+    protected function doValidate($value)
     {
-        return $this->context->value === $this->result->other($this->field ?? $this->context->field . '_confirmation', $this->context->position);
+        return $value === $this->result->other($this->field ?? $this->context->field . '_confirmation', $this->context->position);
     }
 }

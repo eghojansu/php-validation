@@ -29,7 +29,7 @@ abstract class Rule
 
         $this->prepare();
 
-        return $this->doValidate();
+        return $this->doValidate($this->context->value);
     }
 
     public function isIterable(): bool
@@ -67,8 +67,8 @@ abstract class Rule
         // any preparation before validation
     }
 
-    protected function doValidate()
+    protected function doValidate($value)
     {
-        return false;
+        return !!$value;
     }
 }

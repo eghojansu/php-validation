@@ -9,8 +9,8 @@ class Boolean extends Rule
 {
     protected $message = 'This value should be able to cast as boolean';
 
-    protected function doValidate()
+    protected function doValidate($value)
     {
-        return null !== Helper::toBool($this->context->value);
+        return null !== Helper::toBool($value);
     }
 }

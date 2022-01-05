@@ -21,6 +21,7 @@ class ValidatorTest extends TestCase
         $data = array(
             'acc' => 'on',
             'homepage' => 'https://ekokurniawan.my.id/',
+            'today_date' => date('Y-m-d'),
         );
         $actual = $this->validator->setThrowIfError(false)->validate($rules, $data);
 

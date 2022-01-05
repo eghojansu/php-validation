@@ -15,8 +15,8 @@ class DateEquals extends Rule
         $this->message = 'This value should be equals to ' . $this->date;
     }
 
-    protected function doValidate()
+    protected function doValidate($value)
     {
-        return Helper::toDate($this->date) == Helper::toDate($this->context->value);
+        return Helper::toDate($this->date) == Helper::toDate($value);
     }
 }

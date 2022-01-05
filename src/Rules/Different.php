@@ -14,8 +14,8 @@ class Different extends Rule
         $this->message = 'This value should be different from ' . $this->field;
     }
 
-    protected function doValidate()
+    protected function doValidate($value)
     {
-        return $this->context->value != $this->result->other($this->field, $this->context->position);
+        return $value != $this->result->other($this->field, $this->context->position);
     }
 }
