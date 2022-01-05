@@ -2,6 +2,8 @@
 
 namespace Ekok\Validation;
 
+use Ekok\Utils\Val;
+
 class Result implements \ArrayAccess
 {
     protected $errors = array();
@@ -15,52 +17,6 @@ class Result implements \ArrayAccess
         }
     }
 
-    public function offsetExists(mixed $offset): bool
-    {
-        return (
-            Helper::ref($offset, $this->data, false, $exists) || $exists
-            || Helper::ref($offset, $this->original, false, $exists) || $exists
-        );
-    }
-
-    public function offsetGet(mixed $offset): mixed
-    {
-        $var = Helper::ref($offset, $this->data, false, $exists);
-
-        if ($exists) {
-            return $var;
-        }
-
-        return $this->original($offset);
-    }
-
-    public function offsetSet(mixed $offset, mixed $value): void
-    {
-        $var = Helper::ref($offset, $this->data, true);
-        $var[$offset] = $value;
-    }
-
-    public function offsetUnset(mixed $offset): void
-    {
-        if (false === $pos = strrpos($offset, '.')) {
-            unset($this->data[$offset]);
-
-            return;
-        }
-
-        $root = substr($offset, 0, $pos);
-        $leaf = substr($offset, $pos + 1);
-        $var = &Helper::ref($root, $this->data, true);
-
-        if (is_array($var) || $var instanceof \ArrayAccess) {
-            unset($var[$leaf]);
-        } elseif (is_object($var) && is_callable($remove = array($var, 'remove' . $leaf))) {
-            $remove();
-        } elseif (is_object($var) && isset($var->$leaf)) {
-            unset($var->$leaf);
-        }
-    }
-
     public function getData(): array
     {
         return $this->data;
@@ -69,18 +25,6 @@ class Result implements \ArrayAccess
     public function getOriginal(): array
     {
         return $this->original;
-    }
-
-    public function other(string $field, string|int|null $key)
-    {
-        $fetch = Helper::isWild($field, $pos) && $key ? Helper::replaceWild($field, $pos, $key) : $field;
-
-        return $this[$fetch];
-    }
-
-    public function original(string $field)
-    {
-        return Helper::ref($field, $this->original);
     }
 
     public function success(): bool
@@ -124,5 +68,80 @@ class Result implements \ArrayAccess
         array_walk($errors, fn($errors, $field) => $this->setError($field, $errors));
 
         return $this;
+    }
+
+    public function original(string $field)
+    {
+        return $this->ref($field, $this->original);
+    }
+
+    public function other(string $field, string|int|null $key)
+    {
+        $fetch = Helper::isWild($field, $pos) && $key ? Helper::replaceWild($field, $pos, $key) : $field;
+
+        return $this[$fetch];
+    }
+
+    public function &ref(string $key, array &$ref, bool $add = false, bool &$exists = null)
+    {
+        if (substr_count($key, '*') > 1) {
+            throw new \LogicException('Unsupported key with multiple wildcard symbol');
+        }
+
+        $pos = strpos($key, '*');
+
+        if (false === $pos) {
+            $val = &Val::ref($key, $ref, $add, $exists);
+
+            return $val;
+        }
+
+        $root = substr($key, 0, $pos - 1);
+        $name = substr($key, $pos + 2);
+        $val = &Val::ref($root, $ref, $add, $exists);
+
+        if (!$name || !$exists || !is_array($val)) {
+            return $val;
+        }
+
+        $pos = strpos($name, '.');
+
+        if (false === $pos) {
+            return array_column($val, $name);
+        }
+
+        return array_map(fn(array $row) => Val::ref($name, $row), $val);
+    }
+
+    public function offsetExists(mixed $offset): bool
+    {
+        return (
+            $this->ref($offset, $this->data, false, $exists)
+            || $exists
+            || $this->ref($offset, $this->original, false, $exists)
+            || $exists
+        );
+    }
+
+    public function offsetGet(mixed $offset): mixed
+    {
+        $var = $this->ref($offset, $this->data, false, $exists);
+
+        if ($exists) {
+            return $var;
+        }
+
+        return $this->original($offset);
+    }
+
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        $var = &$this->ref($offset, $this->data, true);
+        $var = $value;
+    }
+
+    public function offsetUnset(mixed $offset): void
+    {
+        Val::unref($offset, $this->data);
     }
 }

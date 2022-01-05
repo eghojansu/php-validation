@@ -4,15 +4,14 @@ namespace Ekok\Validation;
 
 class Context
 {
-    protected $failed = false;
     protected $valueIgnored = false;
     protected $propagationStopped = false;
     protected $type;
 
     public function __construct(
         public string $field,
-        public $value,
-        public string|int|null $position = null,
+        public $value = null,
+        public int|string|null $position = null,
     ) {}
 
     public function type(string $type): bool
@@ -40,18 +39,6 @@ class Context
     public function ignoreValue(): static
     {
         $this->valueIgnored = true;
-
-        return $this;
-    }
-
-    public function isFailed(): bool
-    {
-        return $this->failed;
-    }
-
-    public function fail(): static
-    {
-        $this->failed = true;
 
         return $this;
     }

@@ -8,20 +8,25 @@ class Digits extends Rule
 {
     protected $message = 'This value should be entirely digits characters';
 
-    public function __construct(private int|null $length = null)
+    public function __construct(private int|null $min = null, private int|null $max = null)
     {}
 
     protected function prepare()
     {
-        if ($this->length) {
-            $this->message .= ' within ' . $this->length . ' characters';
+        if ($this->max && $this->min) {
+            $this->message .= ' with length between ' . $this->min . ' and ' . $this->max . ' characters';
+        } elseif ($this->min) {
+            $this->message .= ' within ' . $this->min . ' characters';
         }
     }
 
     protected function doValidate()
     {
         return preg_match('/^[[:digit:]]+$/', $this->context->value) && (
-            !$this->length || strlen($this->context->value) === $this->length
+            null === $this->min
+            || ($len = strlen($this->context->value)) === $this->min
+            || !$this->max
+            || ($len >= $this->min && $len <= $this->max)
         );
     }
 }

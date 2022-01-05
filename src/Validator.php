@@ -2,6 +2,10 @@
 
 namespace Ekok\Validation;
 
+use Ekok\Utils\Arr;
+use Ekok\Utils\Str;
+use Ekok\Utils\Payload;
+
 class Validator
 {
     const RULE_NAMESPACE = 'Ekok\\Validation\\Rules\\';
@@ -98,6 +102,8 @@ class Validator
 
     protected function doValidate(string $field, string|array $rules, Result $result, array $messages = null): void
     {
+        /** @var Rule[] */
+        $validators = $this->extract($rules);
         $run = static function(Rule $validator, string $field, string|int $pos = null) use ($result, $messages) {
             $ctx = new Context($field, $result[$field], $pos);
             $val = $validator->validate($ctx, $result);
@@ -111,12 +117,12 @@ class Validator
             return $ctx->isPropagationStopped();
         };
         $runBatch = static fn(Rule $validator, int $pos) => array_reduce(
-            is_array($data = $result[substr($field, 0, $pos - 1)]) ? array_keys($data) : array(),
+            is_array($data = $result[$field]) ? array_keys($data) : array(),
             fn($stop, $key) => $stop || $run($validator, Helper::replaceWild($field, $pos, $key), $key),
         );
 
-        foreach ($this->extract($rules) as $validator) {
-            $stop = Helper::isWild($field, $pos) ? $runBatch($validator, $pos) : $run($validator, $field);
+        foreach ($validators as $validator) {
+            $stop = Helper::isWild($field, $pos) && $validator->isIterable() ? $runBatch($validator, $pos) : $run($validator, $field);
 
             if ($stop) {
                 break;
@@ -126,22 +132,23 @@ class Validator
 
     protected function extract(string|array $rules): array
     {
-        return Helper::each(
+        return Arr::each(
             is_string($rules) ? $this->parse($rules) : $rules,
-            fn($args, $rule) => $args instanceof Rule ? $args : $this->findRule($rule, $args),
+            fn(Payload $args) => $args->value instanceof Rule ? $args->value : $this->findRule($args->key, $args->value),
         );
     }
 
     protected function parse(string $rules): array
     {
-        return Helper::each(
+        return Arr::each(
             explode('|', $rules),
-            static function (string $rule, ...$args) {
-                list($name, $line) = explode(':', $rule . ':');
+            static function (Payload $rule) {
+                list($name, $line) = explode(':', $rule->value . ':');
 
-                $args[1]['seed']->key = $name;
-
-                return array_map('Ekok\\Validation\\Helper::cast', explode(',', $line));
+                return $rule->update(
+                    array_map(Str::class . '::cast', explode(',', $line)),
+                    $name,
+                );
             },
         );
     }
@@ -152,9 +159,12 @@ class Validator
             return (clone $this->rules[$rule])->setArguments($args);
         }
 
-        $class = array_reduce(
+        $class = Arr::first(
             $this->namespaces,
-            fn(string|null $found, $namespace) => $found ?? (class_exists($class = $namespace . $rule) || class_exists($class = $namespace . $rule . Rule::SUFFIX_NAME) ? $class : null),
+            fn(Payload $ns) => class_exists($cls = $ns->value . $rule)
+                || class_exists($cls = $ns->value . $rule . Rule::SUFFIX_NAME)
+                || class_exists($cls = $ns->value . Str::casePascal($rule))
+                || class_exists($cls = $ns->value . Str::casePascal($rule) . Rule::SUFFIX_NAME) ? $cls : null,
         );
 
         if ($class) {
