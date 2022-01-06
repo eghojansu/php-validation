@@ -6,12 +6,12 @@ use Ekok\Validation\Rule;
 
 class Different extends Rule
 {
-    public function __construct(private string $field)
+    public function __construct(private string $field, private string|null $label = null)
     {}
 
     protected function prepare()
     {
-        $this->message = 'This value should be different from ' . $this->field;
+        $this->message = 'This value should be different from ' . ($this->label ?? $this->field);
     }
 
     protected function doValidate($value)

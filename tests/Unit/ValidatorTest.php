@@ -49,9 +49,28 @@ class ValidatorTest extends TestCase
         $this->assertCount(1, $this->validator->getMessages());
 
         // do validate
-        $result = $this->validator->validate(array('foo' => 'alpha|foo:1,2'), array('foo' => 'bar'));
+        $result = $this->validator->validate(
+            array(
+                'foo' => 'alpha|foo:1,2',
+                'bar' => 'exclude_if:baz,qux',
+                'baz' => 'exclude_unless:baz,quux', // same field check
+                'qux' => 'exclude_unless:baz,qux',
+            ),
+            array(
+                'foo' => 'bar',
+                'bar' => 'baz',
+                'baz' => 'qux',
+                'qux' => 'quux',
+            ),
+        );
+        $actual = $result->getData();
+        $expected = array(
+            'foo' => 'bar',
+            'qux' => 'quux',
+        );
 
         $this->assertTrue($result->success());
+        $this->assertEquals($expected, $actual);
     }
 
     public function testUnknownValidationRule()
@@ -80,7 +99,7 @@ class ValidatorTest extends TestCase
     }
 
     /** @dataProvider rulesProvider */
-    public function testRules(array $rules, array $expected = null)
+    public function testRules(array $rules, bool $expected = true)
     {
         $data = array(
             'accept' => 'on',
@@ -117,68 +136,71 @@ class ValidatorTest extends TestCase
                 array('name' => 'bar'),
                 array('name' => 'foo'),
             ),
+            'text_none' => '',
         );
-        $actual = $this->validator->setThrowIfError(false)->validate($rules, $data);
+        $result = $this->validator->setThrowIfError(false)->validate($rules, $data);
 
-        $this->assertEquals($expected['success'] ?? true, $actual->success());
+        $this->assertEquals($expected, $result->success());
     }
 
     public function rulesProvider()
     {
-        $inverse = array('success' => false);
-
         return array(
             'accepted' => array(array('accept' => 'accepted')),
-            'not accepted' => array(array('homepage' => 'accepted'), $inverse),
+            'not accepted' => array(array('homepage' => 'accepted'), false),
             'active_url' => array(array('homepage' => 'active_url')),
-            'not active_url' => array(array('acc' => 'active_url'), $inverse),
+            'not active_url' => array(array('acc' => 'active_url'), false),
             'after' => array(array('today_date' => 'after:yesterday')),
             'after field' => array(array('today_date' => 'after:yesterday_date')),
             'after equals' => array(array('today_date' => 'after:today,true')),
-            'not after' => array(array('today_date' => 'after:today'), $inverse),
+            'not after' => array(array('today_date' => 'after:today'), false),
             'alpha' => array(array('id' => 'alpha')),
             'alpha multiple' => array(array('tags.*.name' => 'alpha')),
-            'not alpha' => array(array('id_snake' => 'alpha'), $inverse),
+            'not alpha' => array(array('id_snake' => 'alpha'), false),
             'alpha_dash' => array(array('slug' => 'alpha_dash')),
-            'not alpha_dash' => array(array('text' => 'alpha_dash'), $inverse),
+            'not alpha_dash' => array(array('text' => 'alpha_dash'), false),
             'alpha_num' => array(array('id_reg' => 'alpha_num')),
-            'not alpha_num' => array(array('date' => 'alpha_num'), $inverse),
+            'not alpha_num' => array(array('date' => 'alpha_num'), false),
             'array' => array(array('user' => 'array')),
             'array keys' => array(array('user' => 'array:name,birthdate')),
-            'not array' => array(array('accept' => 'array'), $inverse),
+            'not array' => array(array('accept' => 'array'), false),
             'before' => array(array('today_date' => 'before:tomorrow')),
             'before field' => array(array('today_date' => 'before:tomorrow_date')),
             'before equals' => array(array('today_date' => 'before:today,true')),
-            'not before' => array(array('today_date' => 'before:today'), $inverse),
+            'not before' => array(array('today_date' => 'before:today'), false),
             'between' => array(array('number' => 'between:10,10')),
             'between number' => array(array('number' => 'between:9,11')),
-            'not between' => array(array('number' => 'between:11,12'), $inverse),
+            'not between' => array(array('number' => 'between:11,12'), false),
             'boolean' => array(array('is_true' => 'boolean')),
             'boolean false' => array(array('is_false' => 'boolean')),
             'boolean unknown' => array(array('unknown' => 'boolean')),
-            'not boolean' => array(array('number' => 'boolean'), $inverse),
+            'not boolean' => array(array('number' => 'boolean'), false),
             'callback' => array(array('number' => array('callback' => fn(int $value) => $value === 10))),
-            'not callback' => array(array('number' => array('callback' => fn(int $value) => $value > 10)), $inverse),
+            'not callback' => array(array('number' => array('callback' => fn(int $value) => $value > 10)), false),
             'confirmed' => array(array('password' => 'confirmed')),
             'confirmed another field' => array(array('password' => 'confirmed:password_secret')),
-            'not confirmed' => array(array('accept' => 'confirmed'), $inverse),
+            'not confirmed' => array(array('accept' => 'confirmed'), false),
             'date' => array(array('today_date' => 'date')),
             'date format' => array(array('today_date' => 'date:Y-m-d')),
-            'not date' => array(array('text' => 'date'), $inverse),
+            'not date' => array(array('text' => 'date'), false),
             'date_equals' => array(array('today_date' => 'date_equals:today')),
-            'not date_equals' => array(array('today_date' => 'date_equals:yesterday_date'), $inverse),
+            'not date_equals' => array(array('today_date' => 'date_equals:yesterday_date'), false),
             'different' => array(array('accept' => 'different:reject')),
-            'not different' => array(array('accept' => 'different:agreed'), $inverse),
+            'not different' => array(array('accept' => 'different:agreed'), false),
             'digits' => array(array('number' => 'digits')),
             'digits size' => array(array('number' => 'digits:2')),
             'digits between' => array(array('number' => 'digits:1,3')),
-            'not digits' => array(array('accept' => 'digits'), $inverse),
+            'not digits' => array(array('accept' => 'digits'), false),
             'distinct' => array(array('tags.*.name' => 'distinct')),
-            'not distinct' => array(array('member.*.name' => 'distinct'), $inverse),
+            'not distinct' => array(array('member.*.name' => 'distinct'), false),
             'email' => array(array('email' => 'email')),
-            'not email' => array(array('homepage' => 'email'), $inverse),
+            'not email' => array(array('homepage' => 'email'), false),
             'ends_with' => array(array('email' => 'ends_with:com,id')),
-            'not ends_with' => array(array('accept' => 'ends_with:com'), $inverse),
+            'not ends_with' => array(array('accept' => 'ends_with:com'), false),
+            'exclude_if' => array(array('slug' => 'exclude_if:accept,on')),
+            'exclude_unless' => array(array('slug' => 'exclude_unless:accept,off')),
+            'filled' => array(array('accept' => 'filled')),
+            'not filled' => array(array('text_none' => 'filled'), false),
         );
     }
 }

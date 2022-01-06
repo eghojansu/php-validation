@@ -7,7 +7,7 @@ use Ekok\Validation\Rule;
 
 class After extends Rule
 {
-    public function __construct(private string $date, private bool $equals = false)
+    public function __construct(private string $date, private string|null $label = null, private bool $equals = false)
     {}
 
     protected function prepare()
@@ -18,7 +18,7 @@ class After extends Rule
             $this->message .= 'or equals to ';
         }
 
-        $this->message .= $this->date;
+        $this->message .= $this->label ?? $this->date;
     }
 
     protected function doValidate($value)
