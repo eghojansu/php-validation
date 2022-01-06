@@ -18,5 +18,10 @@ class DateEquals extends Rule
     protected function doValidate($value)
     {
         return Helper::toDate($this->date) == Helper::toDate($value);
+        return (
+            ($a = Helper::toDate($value))
+            && ($b = Helper::toDate($this->result->other($this->date, $this->context->position)) ?? Helper::toDate($this->date))
+            && ($a == $b)
+        );
     }
 }

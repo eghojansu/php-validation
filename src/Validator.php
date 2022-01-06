@@ -41,9 +41,9 @@ class Validator
         return $this->namespaces;
     }
 
-    public function addNamespace(string $namespace): static
+    public function addNamespace(string ...$namespaces): static
     {
-        $this->namespaces[] = $namespace;
+        array_push($this->namespaces, ...array_map(fn(string $ns) => rtrim($ns, '\\') . '\\', $namespaces));
 
         return $this;
     }
@@ -105,12 +105,12 @@ class Validator
     {
         /** @var Rule[] */
         $validators = $this->extract($rules);
-        $run = static function(Rule $validator, string $field, string|int $pos = null) use ($result, $messages) {
+        $run = function(Rule $validator, string $field, string|int $pos = null) use ($result, $messages) {
             $ctx = new Context($field, $result[$field], $pos);
             $val = $validator->validate($ctx, $result);
 
             if (false === $val) {
-                $result->addError($field, $messages[$validator->name()] ?? $validator->getMessage());
+                $result->addError($field, $messages[$validator->name()] ?? $this->messages[$validator->name()] ?? $validator->getMessage());
             } elseif (!$ctx->isValueIgnored()) {
                 $result[$field] = true === $val ? $result[$field] : $val;
             }
@@ -135,7 +135,7 @@ class Validator
     {
         return Arr::each(
             is_string($rules) ? $this->parse($rules) : $rules,
-            fn(Payload $args) => $args->value instanceof Rule ? $args->value : $this->findRule($args->key, $args->value),
+            fn(Payload $args) => $args->value instanceof Rule ? $args->value : $this->findRule($args->key, (array) $args->value),
         );
     }
 
@@ -147,7 +147,7 @@ class Validator
                 list($name, $line) = explode(':', $rule->value . ':');
 
                 return $rule->update(
-                    array_map(Val::class . '::cast', explode(',', $line)),
+                    array_map(Val::class . '::cast', array_filter(explode(',', $line), fn($arg) => '' !== $arg)),
                     $name,
                 );
             },

@@ -37,14 +37,14 @@ class Result implements \ArrayAccess
         return !$this->success();
     }
 
-    public function error(string $field, bool $flatten = true, string $glue = ','): string|array
+    public function error(string $field, bool $flatten = true, string $glue = ', '): string|array
     {
         return $flatten ? implode($glue, $this->errors[$field] ?? array()) : $this->errors[$field] ?? array();
     }
 
-    public function getErrors(): array
+    public function getErrors(bool $plain = false, string $glue = ', '): array
     {
-        return $this->errors;
+        return $plain ? array_map(fn($errors) => implode($glue, $errors), $this->errors) : $this->errors;
     }
 
     public function addError(string $field, string $message): static
@@ -105,12 +105,9 @@ class Result implements \ArrayAccess
         }
 
         $pos = strpos($name, '.');
+        $value = false === $pos ? array_column($val, $name) : array_map(fn(array $row) => Val::ref($name, $row), $val);
 
-        if (false === $pos) {
-            return array_column($val, $name);
-        }
-
-        return array_map(fn(array $row) => Val::ref($name, $row), $val);
+        return $value;
     }
 
     public function offsetExists(mixed $offset): bool

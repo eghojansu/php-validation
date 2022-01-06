@@ -7,9 +7,12 @@ use Ekok\Validation\Rule;
 class ArrayRule extends Rule
 {
     protected $message = 'This value should be an array';
+    protected $keys;
 
     public function __construct(string ...$keys)
-    {}
+    {
+        $this->keys = $keys;
+    }
 
     protected function prepare()
     {
@@ -20,7 +23,7 @@ class ArrayRule extends Rule
 
     protected function doValidate($value)
     {
-        return is_array($value) && (
+        return $this->context->type('array') && (
             !$this->keys
             || count(array_intersect($this->keys, array_keys($value))) === count($this->keys)
         );

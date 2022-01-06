@@ -40,10 +40,10 @@ abstract class Rule
     public function name(): string
     {
         if (!$this->name) {
-            $this->name = Str::caseSnake(ltrim(strrchr('\\' . static::class, '\\'), '\\'));
+            $this->name = Str::className(static::class, true);
 
-            if (str_ends_with($this->name, self::SUFFIX_NAME)) {
-                $this->name = substr($this->name, 0, -strlen(self::SUFFIX_NAME));
+            if (str_ends_with(static::class, self::SUFFIX_NAME)) {
+                $this->name = rtrim(substr($this->name, 0, -strlen(self::SUFFIX_NAME)), '_');
             }
         }
 
@@ -67,8 +67,5 @@ abstract class Rule
         // any preparation before validation
     }
 
-    protected function doValidate($value)
-    {
-        return !!$value;
-    }
+    abstract protected function doValidate($value);
 }

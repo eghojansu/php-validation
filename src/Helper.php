@@ -29,8 +29,8 @@ class Helper
             'int', 'integer', 'float', 'double' => $value,
             'string' => strlen($value),
             'array' => count($value),
-            'file' => $value['size'] / 1024,
-            default => 0,
+            'file' => ($value['size'] ?? 0) / 1024,
+            default => $value instanceof \Countable ? count($value) : 0,
         };
     }
 

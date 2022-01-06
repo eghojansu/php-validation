@@ -14,21 +14,17 @@ class Context
         public int|string|null $position = null,
     ) {}
 
-    public function type(string $type): bool
+    public function type(string $type = null, bool $set = false): string|bool
     {
-        return $type === $this->getType();
-    }
+        if ($type) {
+            if ($set) {
+                $this->type = $type;
+            }
 
-    public function getType(): string
-    {
+            return $type === ($this->type ?? ($this->type = gettype($this->value)));
+        }
+
         return $this->type ?? ($this->type = gettype($this->value));
-    }
-
-    public function setType(string $type): static
-    {
-        $this->type = $type;
-
-        return $this;
     }
 
     public function isValueIgnored(): bool

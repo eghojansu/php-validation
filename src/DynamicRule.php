@@ -4,5 +4,5 @@ namespace Ekok\Validation;
 
 interface DynamicRule
 {
-    public function setArguments(array $arguments): static;
+    public function setArguments(array $arguments): Rule;
 }
