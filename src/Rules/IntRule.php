@@ -13,8 +13,10 @@ class IntRule extends Rule
 
     protected function doValidate($value)
     {
-        $flags = ($this->octal ? FILTER_FLAG_ALLOW_OCTAL : 0) | ($this->hex ? FILTER_FLAG_ALLOW_HEX : 0) | FILTER_NULL_ON_FAILURE;
-
-        return null !== filter_var($value, FILTER_VALIDATE_INT, $flags);
+        return null !== filter_var(
+            $value,
+            FILTER_VALIDATE_INT,
+            ($this->octal ? FILTER_FLAG_ALLOW_OCTAL : 0) | ($this->hex ? FILTER_FLAG_ALLOW_HEX : 0) | FILTER_NULL_ON_FAILURE,
+        );
     }
 }

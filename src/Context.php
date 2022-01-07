@@ -14,11 +14,13 @@ class Context
         public int|string|null $position = null,
     ) {}
 
-    public function type(string $type = null, bool $set = false): string|bool
+    public function type(string $type = null, bool $set = false): static|string|bool
     {
         if ($type) {
             if ($set) {
                 $this->type = $type;
+
+                return $this;
             }
 
             return $type === ($this->type ?? ($this->type = gettype($this->value)));

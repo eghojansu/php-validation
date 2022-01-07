@@ -12,6 +12,6 @@ class Nullable extends Rule
             $this->context->stopPropagation();
         }
 
-        return $value;
+        return true;
     }
 }

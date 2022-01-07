@@ -13,8 +13,10 @@ class Email extends Rule
 
     protected function doValidate($value)
     {
-        $flags = $this->unicode ? FILTER_FLAG_EMAIL_UNICODE : 0;
-
-        return !!filter_var($value, FILTER_VALIDATE_EMAIL, $flags);
+        return !!filter_var(
+            $value,
+            FILTER_VALIDATE_EMAIL,
+            $this->unicode ? FILTER_FLAG_EMAIL_UNICODE : 0,
+        );
     }
 }

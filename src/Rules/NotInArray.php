@@ -17,6 +17,6 @@ class NotInArray extends Rule
 
     protected function doValidate($value)
     {
-        return Arr::includes((array) $this->result[$this->field], $value, $this->strict);
+        return !Arr::includes((array) $this->result[$this->field], $value, $this->strict);
     }
 }

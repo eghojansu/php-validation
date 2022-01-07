@@ -20,12 +20,14 @@ class Ip extends Rule
 
     protected function doValidate($value)
     {
-        $flags = array_reduce(
-            $this->ranges,
-            fn(int $flags, string $range) => $flags | (defined($flag = 'FILTER_FLAG_NO_' . $range . '_RANGE') ? constant($flag) : 0),
-            $this->version && defined($flag = 'FILTER_FLAG_IPV' . $this->version) ? constant($flag) : FILTER_FLAG_IPV4|FILTER_FLAG_IPV6,
-        ) | FILTER_NULL_ON_FAILURE;
-
-        return null !== filter_var($value, FILTER_VALIDATE_IP, $flags);
+        return null !== filter_var(
+            $value,
+            FILTER_VALIDATE_IP,
+            array_reduce(
+                $this->ranges,
+                fn (int $flags, string $range) => $flags | (defined($flag = 'FILTER_FLAG_' . strtoupper($range) . '_RANGE') ? constant($flag) : 0),
+                $this->version && defined($flag = 'FILTER_FLAG_IPV' . $this->version) ? constant($flag) : FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6,
+            ) | FILTER_NULL_ON_FAILURE,
+        );
     }
 }
