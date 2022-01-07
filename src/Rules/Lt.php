@@ -5,14 +5,14 @@ namespace Ekok\Validation\Rules;
 use Ekok\Validation\Helper;
 use Ekok\Validation\Rule;
 
-class Gt extends Rule
+class Lt extends Rule
 {
     public function __construct(private string $field, private string|null $label = null, private bool $equals = false)
     {}
 
     protected function prepare()
     {
-        $this->message = 'This value should be greater than ';
+        $this->message = 'This value should be less than ';
 
         if ($this->equals) {
             $this->message .= 'or equals to ';
@@ -28,8 +28,8 @@ class Gt extends Rule
         $type = $this->context->type();
 
         return $otherType === $type && ($this->equals ?
-            Helper::toSize($value, $type) >= Helper::toSize($other, $otherType) :
-            Helper::toSize($value, $type) > Helper::toSize($other, $otherType)
+            Helper::toSize($value, $type) <= Helper::toSize($other, $otherType) :
+            Helper::toSize($value, $type) < Helper::toSize($other, $otherType)
         );
     }
 }

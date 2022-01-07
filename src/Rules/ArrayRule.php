@@ -17,15 +17,12 @@ class ArrayRule extends Rule
     protected function prepare()
     {
         if ($this->keys) {
-            $this->message .= ' which contains ' . implode(', ', $this->keys);
+            $this->message .= ' which contains all of these keys: ' . implode(', ', $this->keys);
         }
     }
 
     protected function doValidate($value)
     {
-        return $this->context->type('array') && (
-            !$this->keys
-            || count(array_intersect($this->keys, array_keys($value))) === count($this->keys)
-        );
+        return $this->context->type('array') && (!$this->keys || !array_diff($this->keys, array_keys($value)));
     }
 }

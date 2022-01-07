@@ -16,6 +16,6 @@ class Different extends Rule
 
     protected function doValidate($value)
     {
-        return $value !== $this->result->other($this->field, $this->context->position);
+        return $value != $this->result->other($this->field, $this->context->position);
     }
 }

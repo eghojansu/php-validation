@@ -13,6 +13,6 @@ class Confirmed extends Rule
 
     protected function doValidate($value)
     {
-        return $value === $this->result->other($this->field ?? $this->context->field . '_confirmation', $this->context->position);
+        return $value == $this->result->other($this->field ?? $this->context->field . '_confirmation', $this->context->position);
     }
 }

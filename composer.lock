@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/eghojansu/php-utils.git",
-                "reference": "f48dbf25f14b1ffa67ef4febd787cba325e9931e"
+                "reference": "ec05d0bc28c74b921e33c85ed5e01e26b62b2d13"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eghojansu/php-utils/zipball/f48dbf25f14b1ffa67ef4febd787cba325e9931e",
-                "reference": "f48dbf25f14b1ffa67ef4febd787cba325e9931e",
+                "url": "https://api.github.com/repos/eghojansu/php-utils/zipball/ec05d0bc28c74b921e33c85ed5e01e26b62b2d13",
+                "reference": "ec05d0bc28c74b921e33c85ed5e01e26b62b2d13",
                 "shasum": ""
             },
             "require": {
@@ -48,7 +48,7 @@
                 "issues": "https://github.com/eghojansu/php-utils/issues",
                 "source": "https://github.com/eghojansu/php-utils/tree/dev"
             },
-            "time": "2022-01-05T22:54:52+00:00"
+            "time": "2022-01-07T05:52:00+00:00"
         }
     ],
     "packages-dev": [

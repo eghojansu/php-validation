@@ -22,11 +22,9 @@ class Digits extends Rule
 
     protected function doValidate($value)
     {
-        return preg_match('/^[[:digit:]]+$/', $value) && (
-            null === $this->min
+        return preg_match('/^[[:digit:]]+$/', $value) && (null === $this->min
             || ($len = strlen($value)) === $this->min
-            || !$this->max
-            || ($len >= $this->min && $len <= $this->max)
+            || ($this->max && ($len >= $this->min && $len <= $this->max))
         );
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Ekok\Validation\Rules;
 
+use Ekok\Utils\Val;
 use Ekok\Validation\Rule;
 
 class Filled extends Rule
@@ -10,10 +11,6 @@ class Filled extends Rule
 
     protected function doValidate($value)
     {
-        return !isset($this->result[$this->context->field]) || !in_array(
-            $this->result[$this->context->field],
-            array('', null),
-            true,
-        );
+        return !isset($this->result[$this->context->field]) || Val::isEmpty($this->result[$this->context->field], false);
     }
 }
