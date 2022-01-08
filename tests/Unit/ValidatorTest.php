@@ -4,7 +4,6 @@ namespace Ekok\Validation\Tests;
 
 use Ekok\Validation\Validator;
 use PHPUnit\Framework\TestCase;
-use Ekok\Validation\DynamicRule;
 use Ekok\Validation\Rule;
 use Ekok\Validation\Rules\Callback;
 use Ekok\Validation\ValidationException;
@@ -26,19 +25,26 @@ class ValidatorTest extends TestCase
         $this->validator->setNamespaces(array('foo', 'bar', 'baz'));
         $this->validator->setMessages(array('foo' => 'Default foo message'));
         $this->validator->setRules(array(
-            'foo' => new class extends Rule implements DynamicRule {
-                public function setArguments(array $arguments): Rule
+            'foo' => new class extends Rule {
+                protected function defineParameters()
                 {
-                    $this->arguments = $arguments;
+                    parent::defineParameters();
 
-                    return $this;
+                    $this->setDefinitions(array(
+                        'name' => array('type' => 'string', 'required' => true),
+                        array('name' => 'tags', 'type' => 'string', 'variadic' => true),
+                    ));
                 }
 
                 protected function doValidate($value)
                 {
-                    $this->context->stopPropagation();
-
-                    return count($this->arguments) == 2 && 'bar' === $value;
+                    return (
+                        $this->hasDefinitions()
+                        && 2 == count($this->getDefinitions())
+                        && array('name' => 'foo', 'tags' => array('bar', 'baz')) == $this->getParameters()
+                        && $this->params['name'] == 'foo'
+                        && in_array($value, $this->params['tags'])
+                    );
                 }
             },
         ));
@@ -51,7 +57,7 @@ class ValidatorTest extends TestCase
         // do validate
         $result = $this->validator->validate(
             array(
-                'foo' => 'alpha|foo:1,2',
+                'foo' => 'alpha|foo:foo,bar,baz',
                 'bar' => 'exclude_if:baz,qux',
                 'baz' => 'exclude_unless:baz,quux', // same field check
                 'qux' => 'exclude_unless:baz,qux',
@@ -71,6 +77,67 @@ class ValidatorTest extends TestCase
 
         $this->assertTrue($result->success());
         $this->assertEquals($expected, $actual);
+    }
+
+    public function testUnspecifiedParameter()
+    {
+        $this->expectExceptionMessage('Please specify parameter name at position 0');
+
+        $this->validator->addRule(new class extends Rule {
+            protected function defineParameters()
+            {
+                $this->addDefinition('name', null, true);
+            }
+
+            protected function doValidate($value)
+            {
+                return !!$value;
+            }
+        }, 'foo');
+        $this->validator->validate(array('foo' => 'foo'), array());
+    }
+
+    public function testInvalidParameterType()
+    {
+        $this->expectExceptionMessage('Parameter name should be type of integer but NULL given');
+
+        $this->validator->addRule(new class extends Rule {
+            protected function defineParameters()
+            {
+                $this->addDefinition('name', 'integer');
+            }
+
+            protected function doValidate($value)
+            {
+                return !!$value;
+            }
+        }, 'foo');
+        $this->validator->validate(array('foo' => 'foo'), array());
+    }
+
+    public function testInvalidVariadicParameterType()
+    {
+        $this->expectExceptionMessage('Parameter name should be type of string but integer given');
+
+        $this->validator->addRule(new class extends Rule {
+            protected function defineParameters()
+            {
+                $this->addDefinition('name', 'string', false, true);
+            }
+
+            protected function doValidate($value)
+            {
+                return !!$value;
+            }
+        }, 'foo');
+        $this->validator->validate(array('foo' => 'foo:foo,bar,3,baz'), array());
+    }
+
+    public function testInvalidRule()
+    {
+        $this->expectExceptionMessage('Rule foo should be subclass of Ekok\\Validation\\Rule');
+
+        $this->validator->addRule('foo');
     }
 
     public function testUnknownValidationRule()

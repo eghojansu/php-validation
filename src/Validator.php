@@ -22,16 +22,20 @@ class Validator
         return $this->rules;
     }
 
-    public function addRule(string $name, DynamicRule $rule): static
+    public function addRule(string|Rule $rule, string $name = null): static
     {
-        $this->rules[$name] = $rule;
+        if (is_string($rule) && !is_subclass_of($rule, Rule::class)) {
+            throw new \LogicException(sprintf('Rule %s should be subclass of %s', $rule, Rule::class));
+        }
+
+        $this->rules[$name ?? $rule::name()] = $rule;
 
         return $this;
     }
 
     public function setRules(array $rules): static
     {
-        array_walk($rules, fn($rule, $name) => $this->addRule($name, $rule));
+        array_walk($rules, fn($rule, $name) => $this->addRule($rule, is_numeric($name) ? null : $name));
 
         return $this;
     }
@@ -135,7 +139,7 @@ class Validator
     {
         return Arr::each(
             is_string($rules) ? $this->parse($rules) : $rules,
-            fn(Payload $args) => $args->value instanceof Rule ? $args->value : $this->findRule($args->key, (array) $args->value),
+            fn(Payload $param) => $param->value instanceof Rule ? $param->value : $this->findRule($param->key, (array) $param->value),
         );
     }
 
@@ -154,13 +158,9 @@ class Validator
         );
     }
 
-    protected function findRule(string|int $rule, array $args): Rule
+    protected function findRule(string $rule, array $params): Rule
     {
-        if (isset($this->rules[$rule])) {
-            return (clone $this->rules[$rule])->setArguments($args);
-        }
-
-        $class = Arr::first(
+        $class = $this->rules[$rule] ?? Arr::first(
             $this->namespaces,
             fn(Payload $ns) => class_exists($cls = $ns->value . $rule)
                 || class_exists($cls = $ns->value . $rule . Rule::SUFFIX_NAME)
@@ -168,10 +168,14 @@ class Validator
                 || class_exists($cls = $ns->value . Str::casePascal($rule) . Rule::SUFFIX_NAME) ? $cls : null,
         );
 
-        if ($class) {
-            return new $class(...$args);
+        if (!$class || (is_object($class) && !$class instanceof Rule)) {
+            throw new \LogicException(sprintf('Validation rule not found: %s', $rule));
         }
 
-        throw new \LogicException(sprintf('Validation rule not found: %s', $rule));
+        if ($class instanceof Rule) {
+            return $class->setParameters($params);
+        }
+
+        return new $class(...$params);
     }
 }

@@ -7,16 +7,6 @@ use PHPUnit\Framework\TestCase;
 
 class ResultTest extends TestCase
 {
-    /** @var Result */
-    private $result;
-
-    protected function setUp(): void
-    {
-        $this->result = new Result(array(
-            'foo' => 'bar',
-        ));
-    }
-
     public function testResult()
     {
         $origin = array(
