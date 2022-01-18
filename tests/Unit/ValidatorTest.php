@@ -161,7 +161,7 @@ class ValidatorTest extends TestCase
             );
         } catch (ValidationException $error) {
             $this->assertSame('Unprocessable entity', $error->getMessage());
-            $this->assertSame(array('cb' => array('Error from callback validation')), $error->errors);
+            $this->assertSame(array('cb' => array('Error from callback validation')), $error->result->getErrors());
         }
     }
 
