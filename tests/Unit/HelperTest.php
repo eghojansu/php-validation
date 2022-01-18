@@ -51,6 +51,40 @@ class HelperTest extends TestCase
         }));
     }
 
+    public function testToSizeGreater()
+    {
+        $this->assertSame('high', Helper::toSizeGreater(20));
+        $this->assertSame('high', Helper::toSizeGreater(20.2));
+        $this->assertSame('long', Helper::toSizeGreater(20.2, 'string'));
+        $this->assertSame('long', Helper::toSizeGreater('foo'));
+        $this->assertSame('much', Helper::toSizeGreater(range(1,3)));
+        $this->assertSame('big', Helper::toSizeGreater(array('size' => 512), 'file'));
+        $this->assertSame('high', Helper::toSizeGreater(new \stdClass()));
+        $this->assertSame('high', Helper::toSizeGreater(new class implements \Countable {
+            public function count(): int
+            {
+                return 117;
+            }
+        }));
+    }
+
+    public function testToSizeLower()
+    {
+        $this->assertSame('low', Helper::toSizeLower(20));
+        $this->assertSame('low', Helper::toSizeLower(20.2));
+        $this->assertSame('short', Helper::toSizeLower(20.2, 'string'));
+        $this->assertSame('short', Helper::toSizeLower('foo'));
+        $this->assertSame('few', Helper::toSizeLower(range(1,3)));
+        $this->assertSame('small', Helper::toSizeLower(array('size' => 512), 'file'));
+        $this->assertSame('low', Helper::toSizeLower(new \stdClass()));
+        $this->assertSame('low', Helper::toSizeLower(new class implements \Countable {
+            public function count(): int
+            {
+                return 117;
+            }
+        }));
+    }
+
     public function testIsWild()
     {
         $this->assertTrue(Helper::isWild('foo.*.bar'));

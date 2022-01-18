@@ -34,6 +34,26 @@ class Helper
         };
     }
 
+    public static function toSizeGreater($value, string $type = null): string
+    {
+        return match($type ?? gettype($value)) {
+            'string' => 'long',
+            'array' => 'much',
+            'file' => 'big',
+            default => 'high',
+        };
+    }
+
+    public static function toSizeLower($value, string $type = null): string
+    {
+        return match($type ?? gettype($value)) {
+            'string' => 'short',
+            'array' => 'few',
+            'file' => 'small',
+            default => 'low',
+        };
+    }
+
     public static function isWild(string $key, int|bool &$pos = null): bool
     {
         return !!($pos = strpos($key, '*'));
