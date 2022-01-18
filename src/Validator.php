@@ -114,6 +114,7 @@ class Validator
             $val = $validator->validate($ctx, $result);
 
             if (false === $val) {
+                $ctx->stopPropagation();
                 $result->addError($field, $messages[$validator->name()] ?? $this->messages[$validator->name()] ?? $validator->getMessage());
             } elseif (!$ctx->isValueIgnored()) {
                 $result[$field] = true === $val ? $result[$field] : $val;
