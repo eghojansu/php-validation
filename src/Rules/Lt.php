@@ -25,7 +25,7 @@ class Lt extends Rule
     {
         $other = $this->result->other($this->field, $this->context->position);
         $otherType = gettype($other);
-        $type = $this->context->type();
+        $type = $this->context->getValueType();
 
         return $otherType === $type && ($this->equals ?
             Helper::toSize($value, $type) <= Helper::toSize($other, $otherType) :

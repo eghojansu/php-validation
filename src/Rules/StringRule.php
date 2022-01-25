@@ -10,6 +10,6 @@ class StringRule extends Rule
 
     protected function doValidate($value)
     {
-        return $this->context->type(gettype($value), true)->type('string');
+        return $this->context->isValueType('string');
     }
 }

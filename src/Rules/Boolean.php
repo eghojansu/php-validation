@@ -2,8 +2,8 @@
 
 namespace Ekok\Validation\Rules;
 
-use Ekok\Validation\Helper;
 use Ekok\Validation\Rule;
+use Ekok\Validation\Helper;
 
 class Boolean extends Rule
 {
@@ -11,6 +11,12 @@ class Boolean extends Rule
 
     protected function doValidate($value)
     {
-        return null !== Helper::toBool($value);
+        $passed = (null !== ($update = Helper::toBool($value)));
+
+        if ($passed) {
+            $this->context->value = $update;
+        }
+
+        return $passed;
     }
 }

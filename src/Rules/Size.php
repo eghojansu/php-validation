@@ -17,6 +17,6 @@ class Size extends Rule
 
     protected function doValidate($value)
     {
-        return $this->size === Helper::toSize($value, $this->context->type());
+        return $this->size === Helper::toSize($value, $this->context->getValueType());
     }
 }

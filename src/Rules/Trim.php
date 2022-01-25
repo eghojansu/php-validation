@@ -19,6 +19,6 @@ class Trim extends Rule
         $chars = $this->chars ?? " \t\n\r\0\x0B";
         $trim = $this->left && $this->right ? 'trim' : ($this->left ? 'ltrim' : 'rtrim');
 
-        return $this->context->type('string') ? $trim($value, $chars) : false;
+        return $this->context->isValueType('string') ? $trim($value, $chars) : false;
     }
 }

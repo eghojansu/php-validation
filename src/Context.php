@@ -6,28 +6,13 @@ class Context
 {
     protected $valueIgnored = false;
     protected $propagationStopped = false;
-    protected $type;
+    protected $valueType;
 
     public function __construct(
         public string $field,
         public $value = null,
         public int|string|null $position = null,
     ) {}
-
-    public function type(string $type = null, bool $set = false): static|string|bool
-    {
-        if ($type) {
-            if ($set) {
-                $this->type = $type;
-
-                return $this;
-            }
-
-            return $type === ($this->type ?? ($this->type = gettype($this->value)));
-        }
-
-        return $this->type ?? ($this->type = gettype($this->value));
-    }
 
     public function isValueIgnored(): bool
     {
@@ -53,9 +38,19 @@ class Context
         return $this;
     }
 
-    public function withSelf(callable $cb): static
+    public function getValueType(): string
     {
-        $cb($this);
+        return $this->valueType ?? ($this->valueType = gettype($this->value));
+    }
+
+    public function isValueType(string $type): bool
+    {
+        return $type === $this->getValueType();
+    }
+
+    public function setValueType(string|null $type): static
+    {
+        $this->valueType = $type;
 
         return $this;
     }

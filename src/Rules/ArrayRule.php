@@ -23,6 +23,6 @@ class ArrayRule extends Rule
 
     protected function doValidate($value)
     {
-        return $this->context->type('array') && (!$this->keys || !array_diff($this->keys, array_keys($value)));
+        return $this->context->isValueType('array') && (!$this->keys || !array_diff($this->keys, array_keys($value)));
     }
 }

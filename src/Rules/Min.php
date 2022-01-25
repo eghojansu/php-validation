@@ -12,11 +12,11 @@ class Min extends Rule
 
     protected function prepare()
     {
-        $this->message = 'This value is too ' . Helper::toSizeLower($this->context->value, $this->context->type()) . '. Minimum value allowed is ' . $this->min;
+        $this->message = 'This value is too ' . Helper::toSizeLower($this->context->value, $this->context->getValueType()) . '. Minimum value allowed is ' . $this->min;
     }
 
     protected function doValidate($value)
     {
-        return Helper::toSize($value, $this->context->type()) >= $this->min;
+        return Helper::toSize($value, $this->context->getValueType()) >= $this->min;
     }
 }

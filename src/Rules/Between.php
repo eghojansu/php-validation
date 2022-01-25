@@ -17,7 +17,7 @@ class Between extends Rule
 
     protected function doValidate($value)
     {
-        $size = Helper::toSize($value, $this->context->type());
+        $size = Helper::toSize($value, $this->context->getValueType());
 
         return $size >= $this->min && $size <= $this->max;
     }

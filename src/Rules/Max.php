@@ -12,11 +12,11 @@ class Max extends Rule
 
     protected function prepare()
     {
-        $this->message = 'This value is too ' . Helper::toSizeGreater($this->context->value, $this->context->type()) . '. Maximum value allowed is ' . $this->max;
+        $this->message = 'This value is too ' . Helper::toSizeGreater($this->context->value, $this->context->getValueType()) . '. Maximum value allowed is ' . $this->max;
     }
 
     protected function doValidate($value)
     {
-        return Helper::toSize($value, $this->context->type()) <= $this->max;
+        return Helper::toSize($value, $this->context->getValueType()) <= $this->max;
     }
 }
