@@ -1,12 +1,12 @@
 <?php
 
-namespace Ekok\Validation\Tests;
-
 use Ekok\Validation\Helper;
-use PHPUnit\Framework\TestCase;
 
-class HelperTest extends TestCase
+class HelperTest extends \Codeception\Test\Unit
 {
+    /** @var \UnitTester */
+    protected $tester;
+
     public function testToBool()
     {
         $this->assertTrue(Helper::toBool('true'));

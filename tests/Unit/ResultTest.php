@@ -1,13 +1,13 @@
 <?php
 
-namespace Ekok\Validation\Tests;
-
 use Ekok\Validation\Result;
-use PHPUnit\Framework\TestCase;
 
-class ResultTest extends TestCase
+class ResultTest extends \Codeception\Test\Unit
 {
-    public function testResult()
+    /** @var \UnitTester */
+    protected $tester;
+
+    public function testFunctionality()
     {
         $origin = array(
             'foo' => 'bar',

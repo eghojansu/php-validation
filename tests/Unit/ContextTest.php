@@ -1,13 +1,13 @@
 <?php
 
-namespace Ekok\Validation\Tests;
-
 use Ekok\Validation\Context;
-use PHPUnit\Framework\TestCase;
 
-class ContextTest extends TestCase
+class ContextTest extends \Codeception\Test\Unit
 {
-    public function testContext()
+    /** @var \UnitTester */
+    protected $tester;
+
+    public function testFunctionality()
     {
         $context = new Context('foo.bar');
         $context->setValueType('file');

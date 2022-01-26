@@ -1,19 +1,18 @@
 <?php
 
-namespace Ekok\Validation\Tests;
-
-use Ekok\Validation\Validator;
-use PHPUnit\Framework\TestCase;
 use Ekok\Validation\Rule;
-use Ekok\Validation\Rules\Callback;
+use Ekok\Validation\Validator;
 use Ekok\Validation\ValidationException;
 
-class ValidatorTest extends TestCase
+class ValidatorTest extends \Codeception\Test\Unit
 {
+    /** @var \UnitTester */
+    protected $tester;
+
     /** @var Validator */
     private $validator;
 
-    protected function setUp(): void
+    protected function _before()
     {
         $this->validator = new Validator();
     }
