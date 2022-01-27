@@ -33,6 +33,13 @@ class Validator
         return $this;
     }
 
+    public function addCustomRule(string $name, \Closure $rule, string $message = null): static
+    {
+        $this->rules[$name] = new Rules\Callback($rule, $message);
+
+        return $this;
+    }
+
     public function setRules(array $rules): static
     {
         array_walk($rules, fn($rule, $name) => $this->addRule($rule, is_numeric($name) ? null : $name));

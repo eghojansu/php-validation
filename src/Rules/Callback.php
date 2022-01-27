@@ -6,8 +6,12 @@ use Ekok\Validation\Rule;
 
 class Callback extends Rule
 {
-    public function __construct(private \Closure $cb)
-    {}
+    public function __construct(private \Closure $cb, string $message = null)
+    {
+        if ($message) {
+            $this->setMessage($message);
+        }
+    }
 
     protected function doValidate($value)
     {

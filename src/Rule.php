@@ -123,7 +123,7 @@ abstract class Rule
     {
         $this->params = array();
 
-        foreach ($this->definitions as $name => $arg) {
+        foreach ($this->definitions ?? array() as $name => $arg) {
             if (!Arr::exists($params, $arg['pos']) && $arg['required']) {
                 throw new \LogicException(sprintf('Please specify parameter %s at position %s', $name, $arg['pos']));
             }

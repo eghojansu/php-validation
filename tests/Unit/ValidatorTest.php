@@ -47,10 +47,11 @@ class ValidatorTest extends \Codeception\Test\Unit
                 }
             },
         ));
+        $this->validator->addCustomRule('customs', fn() => true);
 
         $this->assertCount(4, $this->validator->getNamespaces());
         $this->assertEquals(array(Validator::RULE_NAMESPACE, 'foo\\', 'bar\\', 'baz\\'), $this->validator->getNamespaces());
-        $this->assertCount(1, $this->validator->getRules());
+        $this->assertCount(2, $this->validator->getRules());
         $this->assertCount(1, $this->validator->getMessages());
 
         // do validate
@@ -60,18 +61,21 @@ class ValidatorTest extends \Codeception\Test\Unit
                 'bar' => 'exclude_if:baz,qux',
                 'baz' => 'exclude_unless:baz,quux', // same field check
                 'qux' => 'exclude_unless:baz,qux',
+                'custom' => 'customs',
             ),
             array(
                 'foo' => 'bar',
                 'bar' => 'baz',
                 'baz' => 'qux',
                 'qux' => 'quux',
+                'custom' => 'value',
             ),
         );
         $actual = $result->getData();
         $expected = array(
             'foo' => 'bar',
             'qux' => 'quux',
+            'custom' => 'value',
         );
 
         $this->assertTrue($result->success());
@@ -150,12 +154,7 @@ class ValidatorTest extends \Codeception\Test\Unit
     {
         try {
             $this->validator->validate(
-                array('cb' => array('callback' => function () {
-                    /** @var Callback */
-                    $that = $this;
-
-                    return !$that->setMessage('Error from callback validation');
-                })),
+                array('cb' => array('callback' => array(fn() => false, 'Error from callback validation'))),
                 array('cb' => 'foo'),
             );
         } catch (ValidationException $error) {
