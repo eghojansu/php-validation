@@ -368,7 +368,7 @@ class ValidatorTest extends \Codeception\Test\Unit
             'timezone group' => array(array('my_timezone' => 'timezone:asia')),
             'timezone inverse' => array(array('text' => 'timezone'), false),
             'trim' => array(array('accept' => 'trim')),
-            'trim inverse' => array(array('number' => 'trim'), false),
+            'trim number' => array(array('number' => 'trim')),
             'url' => array(array('homepage' => 'url')),
             'url required' => array(array('homepage' => 'url:host,scheme,path')),
             'url inverse' => array(array('email' => 'url'), false),
