@@ -19,8 +19,11 @@ abstract class Rule
     /** @var array */
     protected $params = array();
 
+    /** @var bool */
+    protected $definitionsDefined = false;
+
     /** @var array */
-    protected $definitions;
+    protected $definitions = array();
 
     /** @var Context */
     protected $context;
@@ -110,11 +113,16 @@ abstract class Rule
 
     public function setParameters(array $params): static
     {
-        if (null === $this->definitions) {
+        if (!$this->definitionsDefined) {
             $this->defineParameters();
+            $this->definitionsDefined = true;
         }
 
-        $this->assignParameters($params);
+        if ($this->definitions) {
+            $this->assignParameters($params);
+        } else {
+            $this->params = $params;
+        }
 
         return $this;
     }
@@ -123,7 +131,7 @@ abstract class Rule
     {
         $this->params = array();
 
-        foreach ($this->definitions ?? array() as $name => $arg) {
+        foreach ($this->definitions as $name => $arg) {
             if (!Arr::exists($params, $arg['pos']) && $arg['required']) {
                 throw new \LogicException(sprintf('Please specify parameter %s at position %s', $name, $arg['pos']));
             }
