@@ -3,7 +3,6 @@
 namespace Ekok\Validation\Rules;
 
 use Ekok\Utils\Arr;
-use Ekok\Utils\Payload;
 use Ekok\Utils\Val;
 use Ekok\Validation\Rule;
 
@@ -21,7 +20,7 @@ class RequiredWithAll extends Rule
     {
         return Arr::every(
             $this->fields,
-            fn(Payload $field) => Val::isEmpty($this->result->other($field->value, $this->context->position), false),
+            fn(string $field) => Val::isEmpty($this->result->other($field, $this->context->position), false),
         ) && Val::isEmpty($value, false);
     }
 }

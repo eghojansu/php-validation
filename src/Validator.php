@@ -5,7 +5,6 @@ namespace Ekok\Validation;
 use Ekok\Utils\Arr;
 use Ekok\Utils\Str;
 use Ekok\Utils\Val;
-use Ekok\Utils\Payload;
 
 class Validator
 {
@@ -147,22 +146,25 @@ class Validator
     {
         return Arr::each(
             is_string($rules) ? $this->parse($rules) : $rules,
-            fn(Payload $param) => $param->value instanceof Rule ? $param->value : $this->findRule($param->key, (array) $param->value),
+            fn($param, $key) => $param instanceof Rule ? $param : $this->findRule($key, (array) $param),
         );
     }
 
     protected function parse(string $rules): array
     {
-        return Arr::each(
+        return Arr::reduce(
             explode('|', $rules),
-            static function (Payload $rule) {
-                list($name, $line) = explode(':', $rule->value . ':');
+            static function (array $rules, string $rule) {
+                list($name, $line) = explode(':', $rule . ':');
 
-                return $rule->update(
-                    array_map(Val::class . '::cast', array_filter(explode(',', $line), fn($arg) => '' !== $arg)),
-                    $name,
+                return $rules + array(
+                    $name => array_map(
+                        array(Val::class, 'cast'),
+                        array_filter(explode(',', $line), fn ($arg) => '' !== $arg),
+                    ),
                 );
             },
+            array(),
         );
     }
 
@@ -170,10 +172,10 @@ class Validator
     {
         $class = $this->rules[$rule] ?? Arr::first(
             $this->namespaces,
-            fn(Payload $ns) => class_exists($cls = $ns->value . $rule)
-                || class_exists($cls = $ns->value . $rule . Rule::SUFFIX_NAME)
-                || class_exists($cls = $ns->value . Str::casePascal($rule))
-                || class_exists($cls = $ns->value . Str::casePascal($rule) . Rule::SUFFIX_NAME) ? $cls : null,
+            fn(string $ns) => class_exists($cls = $ns . $rule)
+                || class_exists($cls = $ns . $rule . Rule::SUFFIX_NAME)
+                || class_exists($cls = $ns . Str::casePascal($rule))
+                || class_exists($cls = $ns . Str::casePascal($rule) . Rule::SUFFIX_NAME) ? $cls : null,
         );
 
         if (!$class || (is_object($class) && !$class instanceof Rule)) {

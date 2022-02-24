@@ -3,7 +3,6 @@
 namespace Ekok\Validation;
 
 use Ekok\Utils\Arr;
-use Ekok\Utils\Payload;
 use Ekok\Utils\Str;
 
 abstract class Rule
@@ -141,7 +140,7 @@ abstract class Rule
             if (
                 $arg['type']
                 && (
-                    ($arg['variadic'] && Arr::some($value, fn(Payload $item) => $arg['type'] != gettype($item->value), $last))
+                    ($arg['variadic'] && Arr::some($value, fn($item) => $arg['type'] != gettype($item), $last))
                     || (!$arg['variadic'] && $arg['type'] != ($type = gettype($value)))
                 )
             ) {
