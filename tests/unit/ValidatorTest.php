@@ -120,6 +120,7 @@ class ValidatorTest extends \Codeception\Test\Unit
 
     public function testInvalidVariadicParameterType()
     {
+        $this->expectException('LogicException');
         $this->expectExceptionMessage('Parameter name should be type of string but integer given');
 
         $this->validator->addRule(new class extends Rule {

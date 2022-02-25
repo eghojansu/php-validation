@@ -182,10 +182,6 @@ class Validator
             throw new \LogicException(sprintf('Validation rule not found: %s', $rule));
         }
 
-        if ($class instanceof Rule) {
-            return $class->setParameters($params);
-        }
-
-        return new $class(...$params);
+        return $class instanceof Rule ? $class->setParameters($params) : new $class(...$params);
     }
 }

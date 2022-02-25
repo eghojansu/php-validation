@@ -148,7 +148,7 @@ abstract class Rule
                     'Parameter %s should be type of %s but %s given',
                     $name,
                     $arg['type'],
-                    $type ?? gettype($last),
+                    $type ?? gettype($last[1]),
                 ));
             }
 
