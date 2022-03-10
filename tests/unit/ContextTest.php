@@ -18,5 +18,16 @@ class ContextTest extends \Codeception\Test\Unit
         $this->assertTrue($context->ignoreValue()->isValueIgnored());
         $this->assertFalse($context->isPropagationStopped());
         $this->assertTrue($context->stopPropagation()->isPropagationStopped());
+
+        $this->assertNull($context->value);
+
+        $this->assertFalse($context->updateIf(static fn() => false, 'foo'));
+        $this->assertNull($context->value);
+
+        $this->assertTrue($context->updateIf(true, 'foo'));
+        $this->assertSame('foo', $context->value);
+
+        $this->assertTrue($context->updateIf(static fn() => true, static fn($old) => $old . 'bar'));
+        $this->assertSame('foobar', $context->value);
     }
 }

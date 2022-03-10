@@ -6,17 +6,15 @@ use Ekok\Validation\Rule;
 
 class Email extends Rule
 {
-    protected $message = 'This value is not a valid email address';
-
-    public function __construct(private bool $unicode = false)
-    {}
-
-    protected function doValidate($value)
+    public function __construct(bool $unicode = false)
     {
-        return !!filter_var(
-            $value,
-            FILTER_VALIDATE_EMAIL,
-            $this->unicode ? FILTER_FLAG_EMAIL_UNICODE : 0,
+        parent::__construct(
+            'This value is not a valid email address',
+            static fn($value) => !!filter_var(
+                $value,
+                FILTER_VALIDATE_EMAIL,
+                $unicode ? FILTER_FLAG_EMAIL_UNICODE : 0,
+            ),
         );
     }
 }

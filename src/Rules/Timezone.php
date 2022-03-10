@@ -6,18 +6,16 @@ use Ekok\Validation\Rule;
 
 class Timezone extends Rule
 {
-    protected $message = 'This value should be a valid Timezone';
-
-    public function __construct(private string|null $group = null, private string|null $country = null)
-    {}
-
-    protected function doValidate($value)
+    public function __construct(string $group = null, string $country = null)
     {
-        return in_array(
-            $value,
-            timezone_identifiers_list(
-                $this->group && defined($group = 'DateTimeZone::' . strtoupper($this->group)) ? constant($group) : \DateTimeZone::ALL,
-                $this->country,
+        parent::__construct(
+            'This value should be a valid Timezone',
+            static fn($value) => in_array(
+                $value,
+                timezone_identifiers_list(
+                    $group && defined($grp = 'DateTimeZone::' . strtoupper($group)) ? constant($grp) : \DateTimeZone::ALL,
+                    $country,
+                ),
             ),
         );
     }

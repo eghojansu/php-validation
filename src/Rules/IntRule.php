@@ -6,23 +6,18 @@ use Ekok\Validation\Rule;
 
 class IntRule extends Rule
 {
-    protected $message = 'This value should be an integer';
-
-    public function __construct(private bool $octal = true, private bool $hex = true)
-    {}
-
-    protected function doValidate($value)
+    public function __construct(bool $octal = true, bool $hex = true)
     {
-        $passed = null !== ($update = filter_var(
-            $value,
-            FILTER_VALIDATE_INT,
-            ($this->octal ? FILTER_FLAG_ALLOW_OCTAL : 0) | ($this->hex ? FILTER_FLAG_ALLOW_HEX : 0) | FILTER_NULL_ON_FAILURE,
-        ));
-
-        if ($passed) {
-            $this->context->value = $update;
-        }
-
-        return $passed;
+        parent::__construct(
+            'This value should be an integer',
+            fn($value) => $this->context->updateIf(
+                null !== ($update = filter_var(
+                    $value,
+                    FILTER_VALIDATE_INT,
+                    ($octal ? FILTER_FLAG_ALLOW_OCTAL : 0) | ($hex ? FILTER_FLAG_ALLOW_HEX : 0) | FILTER_NULL_ON_FAILURE,
+                )),
+                $update,
+            ),
+        );
     }
 }

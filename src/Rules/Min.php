@@ -10,9 +10,9 @@ class Min extends Rule
     public function __construct(private int|float $min)
     {}
 
-    protected function prepare()
+    public function getMessage(): string
     {
-        $this->message = 'This value is too ' . Helper::toSizeLower($this->context->value, $this->context->getValueType()) . '. Minimum value allowed is ' . $this->min;
+        return 'This value is too ' . Helper::toSizeLower($this->context->value, $this->context->getValueType()) . '. Minimum value allowed is ' . $this->min;
     }
 
     protected function doValidate($value)

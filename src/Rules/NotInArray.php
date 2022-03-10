@@ -7,16 +7,11 @@ use Ekok\Validation\Rule;
 
 class NotInArray extends Rule
 {
-    public function __construct(private string $field, private string|null $label = null, private bool $strict = false)
-    {}
-
-    protected function prepare()
+    public function __construct(string $field, string $label = null, bool $strict = false)
     {
-        $this->message = 'This value should be within value of ' . ($this->label ?? $this->field);
-    }
-
-    protected function doValidate($value)
-    {
-        return !Arr::includes((array) $this->result[$this->field], $value, $this->strict);
+        parent::__construct(
+            'This value should be within value of ' . ($label ?? $field),
+            fn($value) => !Arr::includes((array) $this->result[$field], $value, $strict),
+        );
     }
 }

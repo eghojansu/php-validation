@@ -37,12 +37,14 @@ class ValidatorTest extends \Codeception\Test\Unit
 
                 protected function doValidate($value)
                 {
+                    $params = $this->getParameters();
+
                     return (
                         $this->hasDefinitions()
                         && 2 == count($this->getDefinitions())
-                        && array('name' => 'foo', 'tags' => array('bar', 'baz')) == $this->getParameters()
-                        && $this->params['name'] == 'foo'
-                        && in_array($value, $this->params['tags'])
+                        && array('name' => 'foo', 'tags' => array('bar', 'baz')) == $params
+                        && $params['name'] == 'foo'
+                        && in_array($value, $params['tags'])
                     );
                 }
             },
@@ -376,5 +378,52 @@ class ValidatorTest extends \Codeception\Test\Unit
             'uuid v4' => array(array('uuidv4' => 'uuid')),
             'uuid inverse' => array(array('text' => 'uuid'), false),
         );
+    }
+
+    public function testCustomRuleViaCallback()
+    {
+        $rule = new Rule(null, function($value) {
+            /** @var Rule */
+            $that = $this;
+
+            $that->setMessage(sprintf('This rule named: "rule" and passed value is: "%s"', $value));
+
+            return false;
+        }, true);
+
+        $this->validator->addRule($rule, 'rule');
+
+        $result = $this->validator->setThrowIfError(false)->validate(array('foo' => 'rule'), array('foo' => 'bar'));
+
+        $this->assertFalse($result->success());
+        $this->assertSame('This rule named: "rule" and passed value is: "bar"', $result->error('foo'));
+    }
+
+    public function testCustomRuleViaCallbackDefaults()
+    {
+        $this->validator->addRule(new Rule(), 'rule');
+
+        $result = $this->validator->setThrowIfError(false)->validate(array('foo' => 'rule'), array('foo' => 'bar'));
+
+        $this->assertFalse($result->success());
+        $this->assertSame('This value is not valid', $result->error('foo'));
+    }
+
+    public function testCustomRuleViaCallbackWithoutName()
+    {
+        $this->expectException('LogicException');
+        $this->expectExceptionMessage('Rule should have a name');
+
+        $this->validator->addRule(new Rule(null, static fn() => false));
+    }
+
+    public function testAddRuleByClass()
+    {
+        $this->validator->addRule(MyRule::class);
+
+        $result = $this->validator->validate(array('foo' => 'my'), array('foo' => ' bar   '));
+
+        $this->assertTrue($result->success());
+        $this->assertSame('bar', $result->getData()['foo']);
     }
 }

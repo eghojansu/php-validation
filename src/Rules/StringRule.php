@@ -6,10 +6,11 @@ use Ekok\Validation\Rule;
 
 class StringRule extends Rule
 {
-    protected $message = 'This value should be a string';
-
-    protected function doValidate($value)
+    public function __construct()
     {
-        return $this->context->isValueType('string');
+        parent::__construct(
+            'This value should be a string',
+            fn() => $this->context->isValueType('string'),
+        );
     }
 }

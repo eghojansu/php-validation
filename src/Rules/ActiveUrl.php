@@ -6,10 +6,11 @@ use Ekok\Validation\Rule;
 
 class ActiveUrl extends Rule
 {
-    protected $message = 'This value is not an active URL';
-
-    protected function doValidate($value)
+    public function __construct()
     {
-        return ($host = parse_url($value, PHP_URL_HOST)) && dns_get_record($host, DNS_A|DNS_AAAA);
+        parent::__construct(
+            'This value is not an active URL',
+            static fn($value) => ($host = parse_url($value, PHP_URL_HOST)) && dns_get_record($host, DNS_A|DNS_AAAA),
+        );
     }
 }

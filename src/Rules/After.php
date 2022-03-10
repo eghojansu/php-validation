@@ -7,26 +7,15 @@ use Ekok\Validation\Rule;
 
 class After extends Rule
 {
-    public function __construct(private string $date, private string|null $label = null, private bool $equals = false)
-    {}
-
-    protected function prepare()
+    public function __construct(string $date, string $label = null, bool $equals = false)
     {
-        $this->message = 'This value should be after ';
-
-        if ($this->equals) {
-            $this->message .= 'or equals to ';
-        }
-
-        $this->message .= $this->label ?? $this->date;
-    }
-
-    protected function doValidate($value)
-    {
-        return (
-            ($a = Helper::toDate($value))
-            && ($b = Helper::toDate($this->result->other($this->date, $this->context->position)) ?? Helper::toDate($this->date))
-            && ($this->equals ? $a >= $b : $a > $b)
+        parent::__construct(
+            'This value should be after ' . ($equals ? 'or equals to ' : '') . ($label ?? $date),
+            fn($value) => (
+                ($a = Helper::toDate($value))
+                && ($b = Helper::toDate($this->result->other($date, $this->context->position)) ?? Helper::toDate($date))
+                && ($equals ? $a >= $b : $a > $b)
+            ),
         );
     }
 }

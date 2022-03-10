@@ -7,20 +7,11 @@ use Ekok\Validation\Rule;
 
 class Date extends Rule
 {
-    public function __construct(private string|null $format = null)
-    {}
-
-    protected function prepare()
+    public function __construct(string $format = null)
     {
-        $this->message = 'This value should be a date';
-
-        if ($this->format) {
-            $this->message .= ' with format ' . $this->format;
-        }
-    }
-
-    protected function doValidate($value)
-    {
-        return null !== ($this->format ? Helper::toDateFromFormat($this->format, $value) : Helper::toDate($value));
+        parent::__construct(
+            'This value should be a date' . ($format ? ' with format ' . $format : null),
+            static fn($value) => null !== ($format ? Helper::toDateFromFormat($format, $value) : Helper::toDate($value)),
+        );
     }
 }

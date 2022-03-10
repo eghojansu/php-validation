@@ -6,11 +6,13 @@ use Ekok\Validation\Rule;
 
 class Distinct extends Rule
 {
-    protected $message = 'This value should not have any duplicated values';
-    protected $iterable = false;
-
-    protected function doValidate($value)
+    public function __construct()
     {
-        return count(array_unique($value)) === count($value);
+        parent::__construct(
+            'This value should not have any duplicated values',
+            static fn($value) => count(array_unique($value)) === count($value),
+        );
+
+        $this->setIterable(false);
     }
 }

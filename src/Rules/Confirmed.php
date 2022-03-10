@@ -6,13 +6,11 @@ use Ekok\Validation\Rule;
 
 class Confirmed extends Rule
 {
-    protected $message = 'This value should be confirmed';
-
-    public function __construct(private string|null $field = null)
-    {}
-
-    protected function doValidate($value)
+    public function __construct(string $field = null)
     {
-        return $value == $this->result->other($this->field ?? $this->context->field . '_confirmation', $this->context->position);
+        parent::__construct(
+            'This value should be confirmed',
+            fn($value) => $value == $this->result->other($field ?? $this->context->field . '_confirmation', $this->context->position),
+        );
     }
 }

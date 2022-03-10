@@ -6,10 +6,11 @@ use Ekok\Validation\Rule;
 
 class Alpha extends Rule
 {
-    protected $message = 'This value should be entirely alphabetic characters';
-
-    protected function doValidate($value)
+    public function __construct()
     {
-        return !!preg_match('/^[[:alpha:]]+$/', $value);
+        parent::__construct(
+            'This value should be entirely alphabetic characters',
+            static fn($value) => !!preg_match('/^[[:alpha:]]+$/', $value),
+        );
     }
 }

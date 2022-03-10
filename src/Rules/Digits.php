@@ -6,25 +6,19 @@ use Ekok\Validation\Rule;
 
 class Digits extends Rule
 {
-    protected $message = 'This value should be entirely digits characters';
-
-    public function __construct(private int|null $min = null, private int|null $max = null)
-    {}
-
-    protected function prepare()
+    public function __construct(int $min = null, int $max = null)
     {
-        if ($this->max && $this->min) {
-            $this->message .= ' with length between ' . $this->min . ' and ' . $this->max . ' characters';
-        } elseif ($this->min) {
-            $this->message .= ' within ' . $this->min . ' characters';
-        }
-    }
-
-    protected function doValidate($value)
-    {
-        return preg_match('/^[[:digit:]]+$/', $value) && (null === $this->min
-            || ($len = strlen($value)) === $this->min
-            || ($this->max && ($len >= $this->min && $len <= $this->max))
+        parent::__construct(
+            'This value should be entirely digits characters' . match(true) {
+                $max && $min => ' with length between ' . $min . ' and ' . $max . ' characters',
+                $min => ' within ' . $min . ' characters',
+                default => null,
+            },
+            static fn($value) => preg_match('/^[[:digit:]]+$/', $value) && (
+                null === $min
+                || ($len = strlen($value)) === $min
+                || ($max && ($len >= $min && $len <= $max))
+            ),
         );
     }
 }

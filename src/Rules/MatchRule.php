@@ -6,13 +6,11 @@ use Ekok\Validation\Rule;
 
 class MatchRule extends Rule
 {
-    protected $message = 'This value is not match';
-
-    public function __construct(private string $pattern, private bool $expected = true)
-    {}
-
-    protected function doValidate($value)
+    public function __construct(string $pattern, bool $expected = true)
     {
-        return $this->expected === !!preg_match($this->pattern, $value);
+        parent::__construct(
+            'This value is not match',
+            static fn($value) => $expected === !!preg_match($pattern, $value),
+        );
     }
 }

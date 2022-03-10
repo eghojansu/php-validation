@@ -6,9 +6,9 @@ use Ekok\Utils\Val;
 
 class Result implements \ArrayAccess
 {
-    protected $errors = array();
-    protected $original = array();
-    protected $data = array();
+    private $errors = array();
+    private $original = array();
+    private $data = array();
 
     public function __construct(array $original = null)
     {

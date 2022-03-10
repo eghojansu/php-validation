@@ -2,17 +2,28 @@
 
 namespace Ekok\Validation;
 
+use Ekok\Utils\Val;
+
 class Context
 {
-    protected $valueIgnored = false;
-    protected $propagationStopped = false;
-    protected $valueType;
+    private $valueIgnored = false;
+    private $propagationStopped = false;
+    private $valueType;
 
     public function __construct(
         public string $field,
         public $value = null,
         public int|string|null $position = null,
     ) {}
+
+    public function updateIf($pass, $value): bool
+    {
+        if ($passed = Val::isTrue($pass)) {
+            $this->value = $value instanceof \Closure ? $value($this->value) : $value;
+        }
+
+        return $passed;
+    }
 
     public function isValueIgnored(): bool
     {

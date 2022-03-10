@@ -8,12 +8,6 @@ class Numeric extends Rule
 {
     protected function doValidate($value)
     {
-        $passed = is_numeric($value);
-
-        if ($passed) {
-            $this->context->value = $value * 1;
-        }
-
-        return $passed;
+        return $this->context->updateIf(is_numeric($value), static fn() => $value * 1);
     }
 }

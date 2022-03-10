@@ -7,18 +7,11 @@ use Ekok\Validation\Rule;
 
 class Between extends Rule
 {
-    public function __construct(private int|float $min, private int|float $max)
-    {}
-
-    protected function prepare()
+    public function __construct(int|float $min, int|float $max)
     {
-        $this->message = 'This value should between ' . $this->min . ' and ' . $this->max;
-    }
-
-    protected function doValidate($value)
-    {
-        $size = Helper::toSize($value, $this->context->getValueType());
-
-        return $size >= $this->min && $size <= $this->max;
+        parent::__construct(
+            'This value should between ' . $min . ' and ' . $max,
+            fn($value) => ($size = Helper::toSize($value, $this->context->getValueType())) >= $min && $size <= $max,
+        );
     }
 }

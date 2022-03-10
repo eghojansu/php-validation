@@ -10,15 +10,9 @@ class Gt extends Rule
     public function __construct(private string $field, private string|null $label = null, private bool $equals = false)
     {}
 
-    protected function prepare()
+    public function getMessage(): string
     {
-        $this->message = 'This value should be greater than ';
-
-        if ($this->equals) {
-            $this->message .= 'or equals to ';
-        }
-
-        $this->message .= $this->label ?? $this->field;
+        return 'This value should be greater than ' . ($this->equals ? 'or equals to ' : '') . ($this->label ?? $this->field);
     }
 
     protected function doValidate($value)

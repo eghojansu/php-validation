@@ -6,10 +6,11 @@ use Ekok\Validation\Rule;
 
 class AlphaDash extends Rule
 {
-    protected $message = 'This value should contains only alpha-numeric characters, dashes or underscores';
-
-    protected function doValidate($value)
+    public function __construct()
     {
-        return !!preg_match('/^[[:alnum:]\-_]+$/', $value);
+        parent::__construct(
+            'This value should contains only alpha-numeric characters, dashes or underscores',
+            static fn($value) => !!preg_match('/^[[:alnum:]\-_]+$/', $value),
+        );
     }
 }

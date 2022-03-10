@@ -10,9 +10,9 @@ class Max extends Rule
     public function __construct(private int|float $max)
     {}
 
-    protected function prepare()
+    public function getMessage(): string
     {
-        $this->message = 'This value is too ' . Helper::toSizeGreater($this->context->value, $this->context->getValueType()) . '. Maximum value allowed is ' . $this->max;
+        return 'This value is too ' . Helper::toSizeGreater($this->context->value, $this->context->getValueType()) . '. Maximum value allowed is ' . $this->max;
     }
 
     protected function doValidate($value)

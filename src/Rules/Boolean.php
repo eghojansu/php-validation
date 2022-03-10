@@ -7,16 +7,14 @@ use Ekok\Validation\Helper;
 
 class Boolean extends Rule
 {
-    protected $message = 'This value should be able to cast as boolean';
-
-    protected function doValidate($value)
+    public function __construct()
     {
-        $passed = (null !== ($update = Helper::toBool($value)));
-
-        if ($passed) {
-            $this->context->value = $update;
-        }
-
-        return $passed;
+        parent::__construct(
+            'This value should be able to cast as boolean',
+            fn($value) => $this->context->updateIf(
+                null !== ($update = Helper::toBool($value)),
+                $update,
+            ),
+        );
     }
 }

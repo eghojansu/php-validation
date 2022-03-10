@@ -7,10 +7,11 @@ use Ekok\Validation\Rule;
 
 class Accepted extends Rule
 {
-    protected $message = 'This value should be accepted';
-
-    protected function doValidate($value)
+    public function __construct()
     {
-        return true === Helper::toBool($value);
+        parent::__construct(
+            'This value should be accepted',
+            static fn($value) => !!Helper::toBool($value),
+        );
     }
 }

@@ -6,10 +6,11 @@ use Ekok\Validation\Rule;
 
 class AlphaNum extends Rule
 {
-    protected $message = 'This value should be entirely alpha-numeric characters';
-
-    protected function doValidate($value)
+    public function __construct()
     {
-        return !!preg_match('/^[[:alnum:]]+$/', $value);
+        parent::__construct(
+            'This value should be entirely alpha-numeric characters',
+            static fn($value) => !!preg_match('/^[[:alnum:]]+$/', $value),
+        );
     }
 }

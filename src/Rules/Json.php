@@ -6,19 +6,18 @@ use Ekok\Validation\Rule;
 
 class Json extends Rule
 {
-    protected $message = 'This value should be a valid JSON string';
-    protected $props;
+    private $props;
 
     public function __construct(private bool|null $transform = null, string ...$props)
     {
         $this->props = $props;
     }
 
-    protected function prepare()
+    public function getMessage(): string
     {
-        if ($this->props) {
-            $this->message .= ' which contains all of these properties ' . implode(', ', $this->props);
-        }
+        return 'This value should be a valid JSON string' . (
+            $this->props ? ' which contains all of these properties ' . implode(', ', $this->props) : null
+        );
     }
 
     protected function doValidate($value)

@@ -11,10 +11,10 @@ class Validator
     const RULE_NAMESPACE = 'Ekok\\Validation\\Rules\\';
 
     /** @var DynamicRule[] */
-    protected $rules = array();
-    protected $messages = array();
-    protected $namespaces = array(self::RULE_NAMESPACE);
-    protected $throwIfError = true;
+    private $rules = array();
+    private $messages = array();
+    private $namespaces = array(self::RULE_NAMESPACE);
+    private $throwIfError = true;
 
     public function getRules(): array
     {
@@ -27,7 +27,13 @@ class Validator
             throw new \LogicException(sprintf('Rule %s should be subclass of %s', $rule, Rule::class));
         }
 
-        $this->rules[$name ?? $rule::name()] = $rule;
+        $add = $name ?? $rule::name();
+
+        if (!$add) {
+            throw new \LogicException('Rule should have a name');
+        }
+
+        $this->rules[$add] = $rule;
 
         return $this;
     }
@@ -111,7 +117,7 @@ class Validator
         return $result;
     }
 
-    protected function doValidate(string $field, string|array $rules, Result $result, array $messages = null): void
+    private function doValidate(string $field, string|array $rules, Result $result, array $messages = null): void
     {
         /** @var Rule[] */
         $validators = $this->extract($rules);
@@ -142,7 +148,7 @@ class Validator
         }
     }
 
-    protected function extract(string|array $rules): array
+    private function extract(string|array $rules): array
     {
         return Arr::each(
             is_string($rules) ? $this->parse($rules) : $rules,
@@ -150,7 +156,7 @@ class Validator
         );
     }
 
-    protected function parse(string $rules): array
+    private function parse(string $rules): array
     {
         return Arr::reduce(
             explode('|', $rules),
@@ -168,7 +174,7 @@ class Validator
         );
     }
 
-    protected function findRule(string $rule, array $params): Rule
+    private function findRule(string $rule, array $params): Rule
     {
         $class = $this->rules[$rule] ?? Arr::first(
             $this->namespaces,

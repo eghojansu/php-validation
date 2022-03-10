@@ -7,13 +7,11 @@ use Ekok\Validation\Rule;
 
 class Required extends Rule
 {
-    protected $message = 'This value should not empty';
-
     public function __construct()
-    {}
-
-    protected function doValidate($value)
     {
-        return Val::isEmpty($value, false);
+        parent::__construct(
+            'This value should not empty',
+            static fn($value) => Val::isEmpty($value, false),
+        );
     }
 }

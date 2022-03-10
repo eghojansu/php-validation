@@ -7,15 +7,13 @@ use Ekok\Validation\Rule;
 
 class ProhibitedIf extends Rule
 {
-    protected $message = 'This value should be empty or not present';
-
-    public function __construct(private string $field, private $value)
-    {}
-
-    protected function doValidate($value)
+    public function __construct(string $field, $value)
     {
-        return $this->value == $this->result->other($this->field, $this->context->position) && (
-            !isset($this->result[$this->context->field]) || Val::isEmpty($value)
+        parent::__construct(
+            'This value should be empty or not present',
+            fn($val) => $value == $this->result->other($field, $this->context->position) && (
+                !isset($this->result[$this->context->field]) || Val::isEmpty($val)
+            ),
         );
     }
 }

@@ -5,30 +5,46 @@ namespace Ekok\Validation;
 use Ekok\Utils\Arr;
 use Ekok\Utils\Str;
 
-abstract class Rule
+class Rule
 {
     const SUFFIX_NAME = 'Rule';
 
+    /** @var bool */
+    private $iterable = true;
+
+    /** @var array */
+    private $params = array();
+
+    /** @var bool */
+    private $definitionsDefined = false;
+
+    /** @var array */
+    private $definitions = array();
+
     /** @var string */
-    protected $message = 'This value is not valid';
+    private $message;
+
+    /** @var callable|null */
+    private $cb;
 
     /** @var bool */
-    protected $iterable = true;
-
-    /** @var array */
-    protected $params = array();
-
-    /** @var bool */
-    protected $definitionsDefined = false;
-
-    /** @var array */
-    protected $definitions = array();
+    private $bind;
 
     /** @var Context */
     protected $context;
 
     /** @var Result */
     protected $result;
+
+    public function __construct(
+        string $message = null,
+        callable $cb = null,
+        bool $bind = null,
+    ) {
+        $this->message = $message ?? 'This value is not valid';
+        $this->cb = $cb;
+        $this->bind = $bind;
+    }
 
     public static function name(): string
     {
@@ -52,6 +68,13 @@ abstract class Rule
     public function isIterable(): bool
     {
         return $this->iterable;
+    }
+
+    public function setIterable(bool $iterable): static
+    {
+        $this->iterable = $iterable;
+
+        return $this;
     }
 
     public function getMessage(): string
@@ -166,5 +189,19 @@ abstract class Rule
         // any preparation before validation
     }
 
-    abstract protected function doValidate($value);
+    protected function doValidate($value)
+    {
+        if ($this->cb) {
+            $cb = $this->cb;
+            $params = array_values($this->params);
+
+            if ($this->bind && $cb instanceof \Closure) {
+                return $cb->call($this, $value, ...$params);
+            }
+
+            return $cb($value, ...$params);
+        }
+
+        return false;
+    }
 }
