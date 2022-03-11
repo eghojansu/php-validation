@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ekok\Validation;
 
 class Helper
@@ -27,7 +29,7 @@ class Helper
     {
         return match($type ?? gettype($value)) {
             'int', 'integer', 'float', 'double' => $value,
-            'string' => strlen($value),
+            'string' => strlen("{$value}"),
             'array' => count($value),
             'file' => ($value['size'] ?? 0) / 1024,
             default => $value instanceof \Countable ? count($value) : 0,
@@ -59,7 +61,7 @@ class Helper
         return !!($pos = strpos($key, '*'));
     }
 
-    public static function replaceWild(string $key, int $pos, string $replacement): string
+    public static function replaceWild(string $key, int $pos, $replacement): string
     {
         return substr($key, 0, $pos) . $replacement . (substr($key, $pos + 1) ?: '');
     }

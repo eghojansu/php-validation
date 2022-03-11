@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ekok\Validation;
 
 class ValidationException extends \Exception
