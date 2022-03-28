@@ -2,7 +2,6 @@
     "name": "ekok/php-validation",
     "description": "PHP Validation",
     "type": "library",
-    "minimum-stability": "stable",
     "license": "MIT",
     "authors": [
         {
@@ -20,7 +19,7 @@
     },
     "require": {
         "php": ">=8.0",
-        "ekok/php-utils": "dev-master"
+        "ekok/php-utils": "^0"
     },
     "require-dev": {
         "codeception/codeception": "~4.1",
