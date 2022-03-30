@@ -426,4 +426,23 @@ class ValidatorTest extends \Codeception\Test\Unit
         $this->assertTrue($result->success());
         $this->assertSame('bar', $result->getData()['foo']);
     }
+
+    public function testNullable()
+    {
+        $result = $this->validator->validate(array(
+            'foo' => 'nullable',
+            'bar' => 'nullable'
+        ), array(
+            'bar' => 'baz',
+            'extra' => 'data',
+        ));
+        $actual = $result->getData();
+        $expected = array(
+            'foo' => null,
+            'bar' => 'baz',
+        );
+
+        $this->assertTrue($result->success());
+        $this->assertSame($expected, $actual);
+    }
 }
