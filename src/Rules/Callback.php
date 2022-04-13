@@ -8,7 +8,7 @@ use Ekok\Validation\Rule;
 
 class Callback extends Rule
 {
-    public function __construct(\Closure $cb, string $message = null)
+    public function __construct(callable $cb, string $message = null)
     {
         parent::__construct($message, $cb, true);
     }

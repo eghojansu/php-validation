@@ -40,7 +40,7 @@ class Validator
         return $this;
     }
 
-    public function addCustomRule(string $name, \Closure $rule, string $message = null): static
+    public function addCustomRule(string $name, callable $rule, string $message = null): static
     {
         $this->rules[$name] = new Rules\Callback($rule, $message);
 
